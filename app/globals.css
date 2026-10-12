@@ -1,0 +1,209 @@
+/*
+ * ReceiptFlow — Global Design System
+ *
+ * Design decisions:
+ * - Deep blue (#1B4F8A / HSL 210 67% 32%) as the primary brand accent
+ * - Neutral warm-gray palette for surfaces, avoiding stark white
+ * - Generous spacing via 8px grid enforced through Tailwind defaults
+ * - Subtle glassmorphism on header/action bars for depth perception
+ * - Micro-animation tokens via CSS custom properties for consistency
+ * - Smooth transitions on all interactive states
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme — Deep Navy & Slate Blue (Tinted) */
+    --background: 222 20% 99%; /* Very faint icy slate for sidebar/header */
+    --foreground: 222 47% 11%; /* #0F172A - Deep Charcoal / Midnight Blue */
+    --surface: 222 20% 96%; /* Slightly darker cool slate for the main background */
+    --card: 0 0% 100%; /* Pure white to make cards pop against the surface */
+    --card-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%; /* #2563EB - Royal Blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 20% 92%; /* Cool slate hover states */
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 222 20% 92%;
+    --muted-foreground: 222 16% 45%; /* Slate tinted text for secondary labels */
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 20% 90%; /* Slate tinted borders */
+    --input: 222 20% 90%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.5rem;
+
+    /* Animation tokens */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark {
+    /* Dark theme — Deep Navy & Slate Blue */
+    --background: 222 47% 11%; /* #0F172A - Deep Charcoal / Midnight Blue */
+    --foreground: 210 40% 98%;
+    --surface: 222 47% 14%; /* Slightly lighter than background */
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --primary: 221 83% 53%; /* #2563EB - Royal Blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 47% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 47% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 47% 20%;
+    --input: 222 47% 20%;
+    --ring: 221 83% 53%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Smooth scrolling globally */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer components {
+  /* Page header pattern used across all screens */
+  .page-header {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+  }
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight sm:text-[28px] sm:leading-tight;
+  }
+  .page-subtitle {
+    @apply mt-1 text-sm text-muted-foreground;
+  }
+}
+
+@layer utilities {
+  /* Micro-interaction: subtle float on hover */
+  .hover-lift {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -5px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Gradient text utility */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(210 67% 32%), hsl(210 67% 50%));
+  }
+
+  /* Glassmorphism utility */
+  .glass {
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  /* Pulse glow for active/notification states */
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Skeleton shimmer animation */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer {
+    background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted-foreground) / 0.08) 50%, hsl(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* Fade in animation for page content */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in {
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+  .animate-fade-in-delay-1 {
+    animation: fade-in-up 0.4s ease-out 0.1s forwards;
+    opacity: 0;
+  }
+  .animate-fade-in-delay-2 {
+    animation: fade-in-up 0.4s ease-out 0.2s forwards;
+    opacity: 0;
+  }
+  .animate-fade-in-delay-3 {
+    animation: fade-in-up 0.4s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+
+  /* Scale-in for modals, dropdowns */
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out forwards;
+  }
+}

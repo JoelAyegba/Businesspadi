@@ -1,0 +1,226 @@
+// Prisma schema for ReceiptFlow.
+// Multi-tenant: every business-owned row carries businessId and is scoped
+// in queries via getServerContext() (lib/auth.ts). NEVER query without it.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  clerkId     String       @unique
+  email       String       @unique
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+}
+
+model Business {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  logoUrl         String?
+  signatureUrl    String?
+  brandColor      String?  @default("#2E75B6")
+  address         String?
+  phone           String?
+  email           String?
+  taxId           String?
+  profileComplete Boolean  @default(false)
+  defaultCurrency String   @default("NGN")
+  defaultTaxRate  Decimal  @default(0) @db.Decimal(5, 2)
+  numberFormat    String   @default("RCPT-{YYYY}-{NNNN}")
+  invoiceNumberFormat String @default("INV-{YYYY}-{NNNN}")
+  timezone        String   @default("Africa/Lagos")
+
+  // Billing — populated in Phase 4.
+  subscriptionStatus String  @default("free") // free | active | past_due | canceled
+  paystackCustomerCode     String?
+  paystackSubscriptionCode String?
+  paystackPlanCode         String?
+  billingCustomerId        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members          Membership[]
+  receipts         Receipt[]
+  clients          Client[]
+  products         Product[]
+  receiptCounters  ReceiptCounter[]
+
+  @@index([slug])
+}
+
+model Membership {
+  id         String   @id @default(cuid())
+  userId     String
+  businessId String
+  role       String   @default("owner") // owner | admin | member  (multi-role lands in v2)
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([businessId])
+}
+
+model Client {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  email      String?
+  phone      String?
+  taxId      String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  receipts Receipt[]
+
+  @@index([businessId])
+  @@index([businessId, name])
+}
+
+// Product catalog — business-owned product/service inventory.
+// Products are referenced when creating receipt/invoice line items
+// so the user only needs to pick a product and enter quantity.
+model Product {
+  id          String   @id @default(cuid())
+  businessId  String
+  name        String
+  description String?
+  sku         String?
+  category    String?
+  unitPrice   Decimal  @db.Decimal(12, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([businessId, active])
+}
+
+enum ReceiptStatus {
+  DRAFT
+  ISSUED
+  PAID
+  VOID
+}
+
+enum DiscountType {
+  FLAT
+  PERCENT
+}
+
+// Discriminates rows in the Receipt table. A RECEIPT is proof of payment;
+// an INVOICE is a request for payment (carries dueDate / paymentTerms and,
+// once paid, links to the RECEIPT generated from it). See DECISIONS.md.
+enum DocumentType {
+  RECEIPT
+  INVOICE
+}
+
+model Receipt {
+  id           String        @id @default(cuid())
+  businessId   String
+  clientId     String?
+  number       String
+  documentType DocumentType  @default(RECEIPT)
+  status       ReceiptStatus @default(DRAFT)
+
+  issueDate DateTime
+  paidAt    DateTime?
+
+  // Invoice-only. Ignored (null) for receipts.
+  dueDate      DateTime?
+  paymentTerms String?
+
+  currency      String
+  taxRate       Decimal       @default(0) @db.Decimal(5, 2)
+  discountType  DiscountType?
+  discountValue Decimal       @default(0) @db.Decimal(12, 2)
+  notes         String?
+  paymentMethod String?
+  templateId    String        @default("classic")
+
+  // Snapshot of business identity at issue time so retroactive branding
+  // changes don't rewrite history.
+  businessSnapshot Json
+
+  // Public sharing — opaque nanoid generated when issued (Phase 4).
+  shareId String? @unique
+
+  // Invoice → Receipt link. Set on the RECEIPT row generated when an INVOICE
+  // is marked paid; the back-relation exposes it from the INVOICE row.
+  sourceInvoiceId  String?  @unique
+  sourceInvoice    Receipt? @relation("InvoiceReceipt", fields: [sourceInvoiceId], references: [id], onDelete: SetNull)
+  generatedReceipt Receipt? @relation("InvoiceReceipt")
+
+  subtotal Decimal @db.Decimal(12, 2)
+  taxTotal Decimal @db.Decimal(12, 2)
+  total    Decimal @db.Decimal(12, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  business  Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  client    Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  lineItems ReceiptLineItem[]
+
+  @@unique([businessId, documentType, number])
+  @@index([businessId, documentType, status])
+  @@index([businessId, issueDate])
+  @@index([clientId])
+}
+
+model ReceiptLineItem {
+  id          String  @id @default(cuid())
+  receiptId   String
+  description String
+  quantity    Decimal @default(1) @db.Decimal(12, 2)
+  unitPrice   Decimal @db.Decimal(12, 2)
+  subtotal    Decimal @db.Decimal(12, 2)
+  position    Int
+
+  receipt Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId])
+}
+
+// Per-business, per-year monotonic counter for receipt numbers.
+// Updated atomically (Postgres row lock) inside the same transaction that
+// creates a Receipt — guarantees sequential numbers under concurrent issues.
+// See DECISIONS.md 0005 for the rationale vs advisory locks / count+retry.
+model ReceiptCounter {
+  businessId String
+  type       DocumentType @default(RECEIPT)
+  year       Int
+  lastNumber Int          @default(0)
+  updatedAt  DateTime     @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@id([businessId, type, year])
+}
+
+// Idempotency log for every inbound webhook (Clerk, Stripe, Resend).
+// Replay-safety relies on the unique provider event id.
+model WebhookEvent {
+  id          String   @id // provider's event id (Svix or Stripe)
+  provider    String
+  type        String
+  payload     Json
+  processedAt DateTime @default(now())
+
+  @@index([provider, type])
+}
