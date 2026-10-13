@@ -18,18 +18,42 @@ import { prisma, withDbRetry } from "@/lib/db";
  */
 export type ServerContext = {
   user: { id: string; clerkId: string; email: string } | null;
-  business: { id: string; name: string; slug: string; brandColor: string | null; defaultCurrency: string; profileComplete: boolean } | null;
+  business: {
+    id: string;
+    name: string;
+    slug: string;
+    brandColor: string | null;
+    defaultCurrency: string;
+    profileComplete: boolean;
+  } | null;
 };
+
+const CONTEXT_BUSINESS_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  brandColor: true,
+  defaultCurrency: true,
+  profileComplete: true,
+} as const satisfies Prisma.BusinessSelect;
 
 export const getServerContext = cache(async function getServerContext(): Promise<ServerContext> {
   const { userId: clerkId } = auth();
   if (!clerkId) return { user: null, business: null };
 
+  // One round trip: runs on every /app page before anything renders, and the
+  // DB is far from dev machines. "join" loads the relations via LATERAL joins
+  // instead of one sequential query each. Select only what the context
+  // returns — the full Business row carries base64 logo/signature images.
   const existing = await prisma.user.findUnique({
+    relationLoadStrategy: "join",
     where: { clerkId },
-    include: {
+    select: {
+      id: true,
+      clerkId: true,
+      email: true,
       memberships: {
-        include: { business: true },
+        select: { business: { select: CONTEXT_BUSINESS_SELECT } },
         orderBy: { createdAt: "asc" },
         take: 1,
       },
@@ -80,7 +104,11 @@ export const getServerContext = cache(async function getServerContext(): Promise
  * Shared by the inline bootstrap above and the Clerk `user.created` webhook —
  * whichever runs second finds the existing membership and creates nothing.
  */
-export async function ensureUserAndBusiness(tx: Prisma.TransactionClient, clerkId: string, email: string) {
+export async function ensureUserAndBusiness(
+  tx: Prisma.TransactionClient,
+  clerkId: string,
+  email: string,
+) {
   const user = await tx.user.upsert({
     where: { clerkId },
     update: { email },

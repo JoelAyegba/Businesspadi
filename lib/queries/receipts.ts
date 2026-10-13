@@ -9,7 +9,7 @@
  * the same shape it sees from lib/mock. That keeps the UI swap zero-cost.
  */
 import { unstable_cache } from "next/cache";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { DocumentType, MockReceipt, ReceiptStatus } from "@/lib/mock";
 
@@ -42,6 +42,7 @@ export function toView(r: ReceiptWithRelations): MockReceipt {
     status: r.status as ReceiptStatus,
     issueDate: toIsoDate(r.issueDate)!,
     paidAt: toIsoDate(r.paidAt),
+    paymentMethod: r.paymentMethod,
     dueDate: toIsoDate(r.dueDate),
     paymentTerms: r.paymentTerms,
     currency: r.currency,
@@ -52,7 +53,9 @@ export function toView(r: ReceiptWithRelations): MockReceipt {
     discountValue: toNumber(r.discountValue),
     notes: r.notes,
     templateId: r.templateId,
-    client: r.client ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone } : null,
+    client: r.client
+      ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone }
+      : null,
     lineItems: r.lineItems.map((li) => ({
       id: li.id,
       description: li.description,
@@ -79,7 +82,7 @@ export function listReceipts(businessId: string, opts?: { take?: number }): Prom
       return rows.map(toView);
     },
     ["receipts", businessId, String(opts?.take ?? "all")],
-    { revalidate: 30, tags: [`receipts-${businessId}`] }
+    { revalidate: 30, tags: [`receipts-${businessId}`] },
   )();
 }
 
@@ -96,7 +99,7 @@ export function listRecents(businessId: string, opts?: { take?: number }): Promi
       return rows.map(toView);
     },
     ["recents", businessId, String(opts?.take ?? 8)],
-    { revalidate: 30, tags: [`receipts-${businessId}`] }
+    { revalidate: 30, tags: [`receipts-${businessId}`] },
   )();
 }
 
@@ -106,35 +109,4 @@ export async function getReceipt(businessId: string, id: string): Promise<MockRe
     include: receiptInclude,
   });
   return r ? toView(r) : null;
-}
-
-export type DashboardKpis = {
-  revenue: number;
-  receiptsIssued: number;
-  draftCount: number;
-  currency: string;
-};
-
-export function getDashboardKpis(businessId: string, currency: string): Promise<DashboardKpis> {
-  return unstable_cache(
-    async () => {
-      const [revenueAgg, receiptsIssued, draftCount] = await Promise.all([
-        prisma.receipt.aggregate({
-          where: { businessId, documentType: "RECEIPT", status: { in: ["ISSUED", "PAID"] } },
-          _sum: { total: true },
-        }),
-        prisma.receipt.count({ where: { businessId, documentType: "RECEIPT", status: { in: ["ISSUED", "PAID"] } } }),
-        prisma.receipt.count({ where: { businessId, documentType: "RECEIPT", status: "DRAFT" } }),
-      ]);
-
-      return {
-        revenue: revenueAgg._sum.total ? toNumber(revenueAgg._sum.total) : 0,
-        receiptsIssued,
-        draftCount,
-        currency,
-      };
-    },
-    ["dashboard-kpis", businessId, currency],
-    { revalidate: 60, tags: [`receipts-${businessId}`] }
-  )();
 }

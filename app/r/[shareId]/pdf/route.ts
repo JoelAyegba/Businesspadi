@@ -11,10 +11,7 @@ import { renderReceiptPdf, pdfFilename } from "@/lib/pdf";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { shareId: string } },
-) {
+export async function GET(_req: Request, { params }: { params: { shareId: string } }) {
   const r = await prisma.receipt.findUnique({
     where: { shareId: params.shareId },
     select: {

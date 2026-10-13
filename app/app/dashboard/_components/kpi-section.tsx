@@ -1,24 +1,21 @@
 import { Wallet, Clock, FileText, FileClock } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/kpi-card";
-import { getDashboardKpis } from "@/lib/queries/receipts";
-import { getInvoiceKpis } from "@/lib/queries/invoices";
+import { getDocumentKpis } from "@/lib/queries/kpis";
 import { formatMoney } from "@/lib/utils";
-import { prisma } from "@/lib/db";
 
-export async function KpiSection({ businessId }: { businessId: string }) {
-  const biz = await prisma.business.findUniqueOrThrow({
-    where: { id: businessId },
-    select: { defaultCurrency: true },
-  });
-  const [kpis, invoiceKpis] = await Promise.all([
-    getDashboardKpis(businessId, biz.defaultCurrency),
-    getInvoiceKpis(businessId, biz.defaultCurrency),
-  ]);
+export async function KpiSection({
+  businessId,
+  currency,
+}: {
+  businessId: string;
+  currency: string;
+}) {
+  const { receipts: kpis, invoices: invoiceKpis } = await getDocumentKpis(businessId, currency);
 
   return (
     <section
       aria-label="Key metrics"
-      className="animate-fade-in-delay-1 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      className="animate-fade-in-delay-1 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4"
     >
       <KpiCard
         label="Total Revenue"

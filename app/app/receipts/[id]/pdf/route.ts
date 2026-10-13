@@ -5,10 +5,7 @@ import { renderReceiptPdf, pdfFilename } from "@/lib/pdf";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
   const { business } = await requireBusinessContext();
 
   const receipt = await prisma.receipt.findFirst({

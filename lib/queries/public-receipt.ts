@@ -45,9 +45,13 @@ export async function getPublicReceipt(shareId: string): Promise<PublicReceiptVi
       businessId: r.businessId,
       clientId: r.clientId,
       number: r.number,
+      documentType: r.documentType,
       status: r.status as ReceiptStatus,
       issueDate: r.issueDate.toISOString().slice(0, 10),
       paidAt: r.paidAt ? r.paidAt.toISOString().slice(0, 10) : null,
+      paymentMethod: r.paymentMethod,
+      dueDate: r.dueDate ? r.dueDate.toISOString().slice(0, 10) : null,
+      paymentTerms: r.paymentTerms,
       currency: r.currency,
       subtotal: toNumber(r.subtotal),
       taxRate: toNumber(r.taxRate),
@@ -56,7 +60,9 @@ export async function getPublicReceipt(shareId: string): Promise<PublicReceiptVi
       discountValue: toNumber(r.discountValue),
       notes: r.notes,
       templateId: r.templateId,
-      client: r.client ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone } : null,
+      client: r.client
+        ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone }
+        : null,
       lineItems: r.lineItems.map((li) => ({
         id: li.id,
         description: li.description,

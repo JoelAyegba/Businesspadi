@@ -54,7 +54,10 @@ export type FreeTierUsage = {
   monthStart: Date;
 };
 
-export async function getFreeTierUsage(businessId: string, now: Date = new Date()): Promise<FreeTierUsage> {
+export async function getFreeTierUsage(
+  businessId: string,
+  now: Date = new Date(),
+): Promise<FreeTierUsage> {
   const biz = await prisma.business.findUniqueOrThrow({
     where: { id: businessId },
     select: { subscriptionStatus: true, timezone: true },

@@ -9,7 +9,13 @@ import { Button } from "@/components/ui/button";
 import { updateBranding } from "@/app/app/settings/actions";
 import { resizeImageFile } from "@/lib/image-utils";
 
-export function BrandingForm({ initialColor, initialLogoUrl }: { initialColor: string; initialLogoUrl: string | null }) {
+export function BrandingForm({
+  initialColor,
+  initialLogoUrl,
+}: {
+  initialColor: string;
+  initialLogoUrl: string | null;
+}) {
   const [color, setColor] = useState(initialColor || "#2E75B6");
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl);
   const [isPending, startTransition] = useTransition();
@@ -58,15 +64,27 @@ export function BrandingForm({ initialColor, initialLogoUrl }: { initialColor: s
         {/* Logo upload */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           {logoUrl ? (
-            <div className="relative group flex h-24 w-24 shrink-0 items-center justify-center rounded-xl border border-border bg-surface/50">
-              <img src={logoUrl} alt="Logo" className="max-h-full max-w-full rounded-lg object-contain p-2" />
+            <div className="group relative flex h-24 w-24 shrink-0 items-center justify-center rounded-xl border border-border bg-surface/50">
+              {/* eslint-disable-next-line @next/next/no-img-element -- data-URL preview; next/image can't optimise it */}
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="max-h-full max-w-full rounded-lg object-contain p-2"
+              />
               <button
                 type="button"
                 onClick={() => setLogoUrl(null)}
-                className="absolute -top-2 -right-2 z-10 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -right-2 -top-2 z-10 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
                 aria-label="Remove logo"
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
               </button>
             </div>
           ) : (
@@ -85,10 +103,20 @@ export function BrandingForm({ initialColor, initialLogoUrl }: { initialColor: s
           )}
 
           <div className="flex flex-col gap-2">
-            <Button variant="outline" className="w-full gap-2 sm:w-auto" onClick={() => fileInputRef.current?.click()}>
+            <Button
+              variant="outline"
+              className="w-full gap-2 sm:w-auto"
+              onClick={() => fileInputRef.current?.click()}
+            >
               <Upload className="h-4 w-4" /> {logoUrl ? "Change logo" : "Choose file"}
             </Button>
-            <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleLogoUpload} />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleLogoUpload}
+            />
             <p className="text-xs text-muted-foreground">
               PNG, JPG, or SVG · Max 2 MB · Recommended 400×400px
             </p>
@@ -137,7 +165,11 @@ export function BrandingForm({ initialColor, initialLogoUrl }: { initialColor: s
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex justify-end border-t border-border/60 pt-4">
           <Button className="gap-2 shadow-sm" onClick={handleSave} disabled={isPending || saved}>
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
             {saved ? "Saved!" : "Save branding"}
           </Button>
         </div>

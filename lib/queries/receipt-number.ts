@@ -17,7 +17,12 @@
  */
 import type { DocumentType, Prisma } from "@prisma/client";
 
-export function formatReceiptNumber(format: string, year: number, n: number, month: number): string {
+export function formatReceiptNumber(
+  format: string,
+  year: number,
+  n: number,
+  month: number,
+): string {
   return format
     .replace(/\{YYYY\}/g, String(year))
     .replace(/\{YY\}/g, String(year).slice(-2))
@@ -30,7 +35,11 @@ export function formatReceiptNumber(format: string, year: number, n: number, mon
 }
 
 export function yearMonthInTimeZone(now: Date, timeZone: string): { year: number; month: number } {
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "numeric" }).formatToParts(now);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(now);
   return {
     year: Number(parts.find((p) => p.type === "year")!.value),
     month: Number(parts.find((p) => p.type === "month")!.value),

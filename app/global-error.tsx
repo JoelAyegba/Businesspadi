@@ -40,8 +40,7 @@ export default function GlobalError({
           justifyContent: "center",
           padding: "1rem",
           background: "#f1f5f9",
-          fontFamily:
-            "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+          fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
           color: "#0f172a",
         }}
       >
@@ -60,8 +59,8 @@ export default function GlobalError({
             Something went wrong
           </h1>
           <p style={{ fontSize: "0.875rem", color: "#475569", margin: "0 0 1.25rem" }}>
-            An unexpected error occurred while loading the application. Try again — if
-            it keeps happening, reload the page.
+            An unexpected error occurred while loading the application. Try again — if it keeps
+            happening, reload the page.
           </p>
 
           {isDevelopment && (

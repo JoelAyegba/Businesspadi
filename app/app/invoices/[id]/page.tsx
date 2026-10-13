@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ReceiptText } from "lucide-react";
+import { ArrowLeft, Download, ReceiptText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ReceiptDocument } from "@/components/receipt/receipt-document";
 import { StatusBadge } from "@/components/receipt/status-badge";
 import { ReceiptActionsMenu } from "@/components/receipt/receipt-actions-menu";
@@ -37,7 +38,9 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="truncate font-mono text-lg font-semibold sm:text-xl">{invoice.number}</h1>
+            <h1 className="truncate font-mono text-lg font-semibold sm:text-xl">
+              {invoice.number}
+            </h1>
             <StatusBadge status={invoice.status} documentType="INVOICE" />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -46,7 +49,16 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </div>
 
         <div className="flex items-center gap-2">
-          <ReceiptActionsMenu receiptId={invoice.id} status={invoice.status} documentType="INVOICE" />
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <a href={`/app/invoices/${invoice.id}/pdf`} download>
+              <Download className="h-4 w-4" /> PDF
+            </a>
+          </Button>
+          <ReceiptActionsMenu
+            receiptId={invoice.id}
+            status={invoice.status}
+            documentType="INVOICE"
+          />
         </div>
       </header>
 

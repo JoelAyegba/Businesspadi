@@ -20,6 +20,9 @@ export const SNAPSHOT_SELECT = {
   taxId: true,
   logoUrl: true,
   brandColor: true,
+  bankName: true,
+  bankAccountName: true,
+  bankAccountNumber: true,
 } as const satisfies Prisma.BusinessSelect;
 
 type SnapshotFields = Pick<Business, keyof typeof SNAPSHOT_SELECT>;
@@ -54,5 +57,8 @@ export function toBusinessView(live: Business, snapshot: Prisma.JsonValue | null
     address: b.address,
     taxId: b.taxId,
     signatureUrl: b.signatureUrl,
+    bankName: b.bankName,
+    bankAccountName: b.bankAccountName,
+    bankAccountNumber: b.bankAccountNumber,
   };
 }

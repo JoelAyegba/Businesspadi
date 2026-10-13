@@ -160,7 +160,10 @@ export default async function ClientsPage() {
                       Client <ArrowUpDown className="h-3 w-3" />
                     </button>
                   </th>
-                  <th scope="col" className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  >
                     Contact
                   </th>
                   <th scope="col" className="px-5 py-3.5 text-right">
@@ -173,7 +176,10 @@ export default async function ClientsPage() {
                       Total billed <ArrowUpDown className="h-3 w-3" />
                     </button>
                   </th>
-                  <th scope="col" className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  >
                     Last receipt
                   </th>
                   <th scope="col" className="px-5 py-3.5 text-right">
@@ -228,7 +234,7 @@ export default async function ClientsPage() {
                     <td className="px-5 py-4 text-right font-bold tabular-nums">
                       {formatMoney(c.totalBilled, currency)}
                     </td>
-                    <td className="px-5 py-4 text-muted-foreground tabular-nums">
+                    <td className="px-5 py-4 tabular-nums text-muted-foreground">
                       {c.lastIssueDate ? dateFmt.format(new Date(c.lastIssueDate)) : "—"}
                     </td>
                     <td className="px-5 py-4">

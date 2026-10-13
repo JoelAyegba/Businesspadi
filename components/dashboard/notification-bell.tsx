@@ -24,18 +24,18 @@ export async function NotificationBell({ businessId }: { businessId: string }) {
           <Bell className="h-4 w-4" />
           {hasNotifications && (
             <span
-              className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background animate-pulse"
+              className="absolute right-2 top-2 h-2 w-2 animate-pulse rounded-full bg-red-500 ring-2 ring-background"
               aria-hidden
             />
           )}
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden shadow-2xl">
-        <div className="bg-muted/50 p-4 border-b border-border flex items-center justify-between">
-          <p className="font-semibold text-sm">Notifications</p>
+      <DropdownMenuContent align="end" className="w-80 overflow-hidden p-0 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border bg-muted/50 p-4">
+          <p className="text-sm font-semibold">Notifications</p>
           {hasNotifications && (
-            <span className="text-xs font-medium text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
+            <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-500">
               {overdueInvoices.length} Overdue
             </span>
           )}
@@ -43,8 +43,8 @@ export async function NotificationBell({ businessId }: { businessId: string }) {
 
         <div className="max-h-[300px] overflow-y-auto">
           {!hasNotifications ? (
-            <div className="p-8 text-center flex flex-col items-center justify-center text-muted-foreground">
-              <Bell className="h-6 w-6 mb-2 opacity-20" />
+            <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+              <Bell className="mb-2 h-6 w-6 opacity-20" />
               <p className="text-sm">You have no new notifications.</p>
             </div>
           ) : (
@@ -52,25 +52,35 @@ export async function NotificationBell({ businessId }: { businessId: string }) {
               {overdueInvoices.map((invoice) => {
                 const isOverdue = invoice.dueDate && new Date(invoice.dueDate) < new Date();
                 const daysOverdue = isOverdue
-                  ? Math.floor((new Date().getTime() - new Date(invoice.dueDate!).getTime()) / (1000 * 3600 * 24))
+                  ? Math.floor(
+                      (new Date().getTime() - new Date(invoice.dueDate!).getTime()) /
+                        (1000 * 3600 * 24),
+                    )
                   : 0;
 
                 return (
-                  <DropdownMenuItem key={invoice.id} asChild className="p-0 cursor-pointer border-b border-border/50 last:border-0 rounded-none focus:bg-muted/50">
-                    <Link href={`/app/invoices/${invoice.id}`} className="flex items-start gap-4 p-4 w-full outline-none">
-                      <div className="h-8 w-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <DropdownMenuItem
+                    key={invoice.id}
+                    asChild
+                    className="cursor-pointer rounded-none border-b border-border/50 p-0 last:border-0 focus:bg-muted/50"
+                  >
+                    <Link
+                      href={`/app/invoices/${invoice.id}`}
+                      className="flex w-full items-start gap-4 p-4 outline-none"
+                    >
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/10">
                         <FileClock className="h-4 w-4 text-red-500" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <p className="text-sm font-medium leading-none text-foreground truncate">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-medium leading-none text-foreground">
                             {invoice.client?.name || "Unknown Client"}
                           </p>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          <span className="whitespace-nowrap text-xs text-muted-foreground">
                             {daysOverdue}d ago
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate mb-1">
+                        <p className="mb-1 truncate text-xs text-muted-foreground">
                           Invoice {invoice.number} is overdue
                         </p>
                         <p className="text-sm font-semibold text-red-600 dark:text-red-400">

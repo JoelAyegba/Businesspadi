@@ -14,13 +14,6 @@ import { prisma } from "@/lib/db";
 import type { MockReceipt } from "@/lib/mock";
 import { receiptInclude, toView } from "@/lib/queries/receipts";
 
-function toNumber(d: { toNumber: () => number } | number | string | null | undefined): number {
-  if (d == null) return 0;
-  if (typeof d === "number") return d;
-  if (typeof d === "string") return parseFloat(d);
-  return d.toNumber();
-}
-
 export function listInvoices(businessId: string, opts?: { take?: number }): Promise<MockReceipt[]> {
   return unstable_cache(
     async () => {
@@ -33,7 +26,7 @@ export function listInvoices(businessId: string, opts?: { take?: number }): Prom
       return rows.map(toView);
     },
     ["invoices", businessId, String(opts?.take ?? "all")],
-    { revalidate: 30, tags: [`receipts-${businessId}`] }
+    { revalidate: 30, tags: [`receipts-${businessId}`] },
   )();
 }
 
@@ -43,42 +36,6 @@ export async function getInvoice(businessId: string, id: string): Promise<MockRe
     include: receiptInclude,
   });
   return r ? toView(r) : null;
-}
-
-export type InvoiceKpis = {
-  outstanding: number;
-  draftCount: number;
-  invoiceCount: number;
-  unpaidCount: number;
-  currency: string;
-};
-
-export function getInvoiceKpis(businessId: string, currency: string): Promise<InvoiceKpis> {
-  return unstable_cache(
-    async () => {
-      const [outstandingAgg, draftCount, invoiceCount, unpaidCount] = await Promise.all([
-        prisma.receipt.aggregate({
-          where: { businessId, documentType: "INVOICE", status: "ISSUED" },
-          _sum: { total: true },
-        }),
-        prisma.receipt.count({ where: { businessId, documentType: "INVOICE", status: "DRAFT" } }),
-        prisma.receipt.count({
-          where: { businessId, documentType: "INVOICE", status: { in: ["ISSUED", "PAID"] } },
-        }),
-        prisma.receipt.count({ where: { businessId, documentType: "INVOICE", status: "ISSUED" } }),
-      ]);
-
-      return {
-        outstanding: toNumber(outstandingAgg._sum.total),
-        draftCount,
-        invoiceCount,
-        unpaidCount,
-        currency,
-      };
-    },
-    ["invoice-kpis", businessId, currency],
-    { revalidate: 60, tags: [`receipts-${businessId}`] }
-  )();
 }
 
 export function getOverdueInvoices(businessId: string): Promise<MockReceipt[]> {
@@ -97,6 +54,6 @@ export function getOverdueInvoices(businessId: string): Promise<MockReceipt[]> {
       return rows.map(toView);
     },
     ["overdue-invoices", businessId],
-    { revalidate: 60, tags: [`receipts-${businessId}`] }
+    { revalidate: 60, tags: [`receipts-${businessId}`] },
   )();
 }

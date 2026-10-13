@@ -2,7 +2,7 @@
  * Business-scoped client queries.
  * Same multi-tenant rule as lib/queries/receipts.ts.
  */
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { MockClient } from "@/lib/mock";
 

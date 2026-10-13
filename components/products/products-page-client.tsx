@@ -9,13 +9,11 @@ import {
   Trash2,
   ToggleLeft,
   ToggleRight,
-  X,
   Check,
   Loader2,
   Tag,
   DollarSign,
   Archive,
-  Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -156,10 +154,11 @@ export function ProductsPageClient({ initialProducts, currency }: Props) {
           {filtered.map((product) => (
             <Card
               key={product.id}
-              className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg ${!product.active
-                ? "border-slate-200/50 bg-slate-50/50 opacity-60 dark:border-slate-800/50 dark:bg-slate-900/30"
-                : "border-slate-200/60 dark:border-slate-800 hover:border-blue-500/30 dark:hover:border-blue-500/20"
-                }`}
+              className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+                !product.active
+                  ? "border-slate-200/50 bg-slate-50/50 opacity-60 dark:border-slate-800/50 dark:bg-slate-900/30"
+                  : "border-slate-200/60 hover:border-blue-500/30 dark:border-slate-800 dark:hover:border-blue-500/20"
+              }`}
             >
               <CardContent className="flex flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-2">
@@ -213,9 +212,13 @@ export function ProductsPageClient({ initialProducts, currency }: Props) {
                     disabled={isPending}
                   >
                     {product.active ? (
-                      <><ToggleRight className="h-3 w-3" /> Deactivate</>
+                      <>
+                        <ToggleRight className="h-3 w-3" /> Deactivate
+                      </>
                     ) : (
-                      <><ToggleLeft className="h-3 w-3" /> Activate</>
+                      <>
+                        <ToggleLeft className="h-3 w-3" /> Activate
+                      </>
                     )}
                   </Button>
                   <Button
@@ -250,8 +253,8 @@ export function ProductsPageClient({ initialProducts, currency }: Props) {
           <DialogHeader>
             <DialogTitle>Delete product?</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. The product will be permanently removed from your catalog.
-              Consider deactivating it instead if you want to keep it for reference.
+              This action cannot be undone. The product will be permanently removed from your
+              catalog. Consider deactivating it instead if you want to keep it for reference.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -263,7 +266,11 @@ export function ProductsPageClient({ initialProducts, currency }: Props) {
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
               disabled={isPending}
             >
-              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
               Delete
             </Button>
           </DialogFooter>
@@ -391,7 +398,8 @@ function ProductDialog({
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="productPrice">
               <span className="flex items-center gap-1">
-                <DollarSign className="h-3 w-3" /> Unit price ({currency}) <span className="text-destructive">*</span>
+                <DollarSign className="h-3 w-3" /> Unit price ({currency}){" "}
+                <span className="text-destructive">*</span>
               </span>
             </Label>
             <Input
@@ -403,11 +411,9 @@ function ProductDialog({
               placeholder="0.00"
               value={unitPrice}
               onChange={(e) => setUnitPrice(e.target.value)}
-              className="text-right tabular-nums font-mono"
+              className="text-right font-mono tabular-nums"
             />
-            {errors.unitPrice && (
-              <p className="text-xs text-destructive">{errors.unitPrice[0]}</p>
-            )}
+            {errors.unitPrice && <p className="text-xs text-destructive">{errors.unitPrice[0]}</p>}
           </div>
         </div>
 

@@ -10,4 +10,4 @@ export function getResend(): Resend {
   return _resend;
 }
 
-export const FROM_ADDRESS = process.env.RESEND_FROM ?? "ReceiptFlow <noreply@example.com>";
+export const FROM_ADDRESS = process.env.RESEND_FROM ?? "Businesspadi <noreply@example.com>";

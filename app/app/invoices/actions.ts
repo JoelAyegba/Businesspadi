@@ -93,7 +93,9 @@ export async function markInvoicePaid(
       where: { sourceInvoiceId: invoice.id, businessId: business.id, documentType: "RECEIPT" },
       select: { id: true },
     });
-    return winner ? { ok: true, receiptId: winner.id } : { ok: false, error: "Invoice is no longer open" };
+    return winner
+      ? { ok: true, receiptId: winner.id }
+      : { ok: false, error: "Invoice is no longer open" };
   }
 
   revalidatePath("/app/invoices");
@@ -117,7 +119,12 @@ export async function voidInvoice(invoiceId: string): Promise<ActionResult> {
   if (invoice.status === "PAID") return { ok: false, error: "Paid invoices cannot be voided" };
 
   await prisma.receipt.updateMany({
-    where: { id: invoiceId, businessId: business.id, documentType: "INVOICE", status: { in: ["DRAFT", "ISSUED"] } },
+    where: {
+      id: invoiceId,
+      businessId: business.id,
+      documentType: "INVOICE",
+      status: { in: ["DRAFT", "ISSUED"] },
+    },
     data: { status: "VOID" },
   });
   revalidatePath(`/app/invoices/${invoiceId}`);

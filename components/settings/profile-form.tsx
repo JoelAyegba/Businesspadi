@@ -47,7 +47,7 @@ export function ProfileForm({ initialData }: ProfileProps) {
     if (!file) return;
     try {
       const b64 = await resizeImageFile(file, 600, 300);
-      setData(prev => ({ ...prev, signatureUrl: b64 }));
+      setData((prev) => ({ ...prev, signatureUrl: b64 }));
     } catch (err) {
       console.error(err);
     }
@@ -69,33 +69,65 @@ export function ProfileForm({ initialData }: ProfileProps) {
       <CardContent className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="settingsName">Business name</Label>
-          <Input id="settingsName" value={data.name} disabled className="opacity-70 cursor-not-allowed bg-muted/50" />
+          <Input
+            id="settingsName"
+            value={data.name}
+            disabled
+            className="cursor-not-allowed bg-muted/50 opacity-70"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="settingsSlug">URL slug</Label>
-          <Input id="settingsSlug" value={data.slug} onChange={e => setData(d => ({ ...d, slug: e.target.value }))} />
+          <Input
+            id="settingsSlug"
+            value={data.slug}
+            onChange={(e) => setData((d) => ({ ...d, slug: e.target.value }))}
+          />
           <p className="text-xs text-muted-foreground">
-            Used in shareable receipt links: <span className="font-mono text-foreground/70">receiptflow.co/{data.slug}</span>
+            Used in downloaded PDF file names, e.g.{" "}
+            <span className="font-mono text-foreground/70">{data.slug}-RCPT-0001.pdf</span>
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settingsPhone">Phone</Label>
-            <Input id="settingsPhone" type="tel" placeholder="+234 ..." value={data.phone || ""} onChange={e => setData(d => ({ ...d, phone: e.target.value }))} />
+            <Input
+              id="settingsPhone"
+              type="tel"
+              placeholder="+234 ..."
+              value={data.phone || ""}
+              onChange={(e) => setData((d) => ({ ...d, phone: e.target.value }))}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settingsEmail">Business email</Label>
-            <Input id="settingsEmail" type="email" placeholder="hello@yourbusiness.com" value={data.email || ""} onChange={e => setData(d => ({ ...d, email: e.target.value }))} />
+            <Input
+              id="settingsEmail"
+              type="email"
+              placeholder="hello@yourbusiness.com"
+              value={data.email || ""}
+              onChange={(e) => setData((d) => ({ ...d, email: e.target.value }))}
+            />
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settingsTaxId">Tax ID</Label>
-            <Input id="settingsTaxId" placeholder="Optional" value={data.taxId || ""} onChange={e => setData(d => ({ ...d, taxId: e.target.value }))} />
+            <Input
+              id="settingsTaxId"
+              placeholder="Optional"
+              value={data.taxId || ""}
+              onChange={(e) => setData((d) => ({ ...d, taxId: e.target.value }))}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settingsAddress">Address</Label>
-            <Input id="settingsAddress" placeholder="Lagos, Nigeria" value={data.address || ""} onChange={e => setData(d => ({ ...d, address: e.target.value }))} />
+            <Input
+              id="settingsAddress"
+              placeholder="Lagos, Nigeria"
+              value={data.address || ""}
+              onChange={(e) => setData((d) => ({ ...d, address: e.target.value }))}
+            />
           </div>
         </div>
 
@@ -104,23 +136,46 @@ export function ProfileForm({ initialData }: ProfileProps) {
           <Label>Signature</Label>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             {data.signatureUrl ? (
-              <div className="rounded-xl border border-border/60 bg-surface/30 p-3 relative group">
-                <img src={data.signatureUrl} alt="Business signature" className="h-16 w-auto dark:invert" />
+              <div className="group relative rounded-xl border border-border/60 bg-surface/30 p-3">
+                {/* eslint-disable-next-line @next/next/no-img-element -- data-URL preview; next/image can't optimise it */}
+                <img
+                  src={data.signatureUrl}
+                  alt="Business signature"
+                  className="h-16 w-auto dark:invert"
+                />
                 <button
                   type="button"
-                  onClick={() => setData(d => ({ ...d, signatureUrl: null }))}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => setData((d) => ({ ...d, signatureUrl: null }))}
+                  className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
                   aria-label="Remove signature"
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
                 </button>
               </div>
             ) : (
-              <Button type="button" variant="outline" className="gap-2 sm:w-auto text-muted-foreground" onClick={() => fileInputRef.current?.click()}>
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2 text-muted-foreground sm:w-auto"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <Upload className="h-4 w-4" /> Upload signature image
               </Button>
             )}
-            <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleSignatureUpload} />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleSignatureUpload}
+            />
           </div>
           <p className="text-xs text-muted-foreground">Keep it transparent for best results.</p>
         </div>
@@ -128,7 +183,11 @@ export function ProfileForm({ initialData }: ProfileProps) {
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex justify-end border-t border-border/60 pt-4">
           <Button className="gap-2 shadow-sm" onClick={handleSave} disabled={isPending || saved}>
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
             {saved ? "Saved!" : "Save changes"}
           </Button>
         </div>

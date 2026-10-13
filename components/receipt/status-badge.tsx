@@ -10,7 +10,10 @@ import type { DocumentType, ReceiptStatus } from "@/lib/mock";
  * - PAID: green — successfully collected
  * - VOID: red — cancelled/voided
  */
-const config: Record<ReceiptStatus, { label: string; variant: "success" | "warning" | "muted" | "destructive" | "default" }> = {
+const config: Record<
+  ReceiptStatus,
+  { label: string; variant: "success" | "warning" | "muted" | "destructive" | "default" }
+> = {
   PAID: { label: "Paid", variant: "success" },
   ISSUED: { label: "Issued", variant: "default" },
   DRAFT: { label: "Draft", variant: "muted" },

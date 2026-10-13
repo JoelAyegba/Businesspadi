@@ -15,12 +15,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # Placeholder values for every step: `prisma validate` fails on a missing
+    # env("DIRECT_DATABASE_URL") just like the build does. Real keys live in
+    # Vercel project settings; nothing here talks to a real service.
+    env:
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+      DIRECT_DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
+      CLERK_SECRET_KEY: sk_test_placeholder
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -41,12 +51,8 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
-        env:
-          # Build uses placeholder values; real keys live in Vercel project settings.
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-          DATABASE_URL: postgresql://placeholder
-          DIRECT_DATABASE_URL: postgresql://placeholder
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
-          CLERK_SECRET_KEY: sk_test_placeholder
         run: npm run build

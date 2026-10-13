@@ -2,7 +2,7 @@
  * Transactional email templates.
  *
  * Every interpolated value is tenant-controlled (business name, colour,
- * receipt number) and the mail goes out from ReceiptFlow's domain — escape
+ * receipt number) and the mail goes out from Businesspadi's domain — escape
  * everything, or a business name like `<a href=...>` becomes a phishing link.
  */
 
@@ -52,7 +52,7 @@ export function receiptEmail(input: ReceiptEmailInput): { subject: string; html:
           <p>Or copy and paste this link into your browser:</p>
           <p><a href="${url}">${url}</a></p>
           <p style="color: #888; font-size: 12px; margin-top: 40px;">
-            Powered by ReceiptFlow
+            Powered by Businesspadi
           </p>
         </div>
       `,

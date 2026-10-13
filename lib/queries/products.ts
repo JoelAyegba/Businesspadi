@@ -2,7 +2,7 @@
  * Business-scoped product queries.
  * Same multi-tenant rule: every query filters by businessId.
  */
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 function toNumber(d: Prisma.Decimal | number | null): number {

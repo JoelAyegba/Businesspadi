@@ -57,16 +57,33 @@ export function DefaultsForm({ initialData }: DefaultsProps) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settingsCurrency">Default currency</Label>
-            <Input id="settingsCurrency" value={data.defaultCurrency} onChange={e => setData(d => ({ ...d, defaultCurrency: e.target.value }))} className="font-mono uppercase" />
+            <Input
+              id="settingsCurrency"
+              value={data.defaultCurrency}
+              onChange={(e) => setData((d) => ({ ...d, defaultCurrency: e.target.value }))}
+              className="font-mono uppercase"
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settingsTaxRate">Default tax rate (%)</Label>
-            <Input id="settingsTaxRate" type="number" step="0.1" inputMode="decimal" value={data.defaultTaxRate} onChange={e => setData(d => ({ ...d, defaultTaxRate: e.target.value }))} />
+            <Input
+              id="settingsTaxRate"
+              type="number"
+              step="0.1"
+              inputMode="decimal"
+              value={data.defaultTaxRate}
+              onChange={(e) => setData((d) => ({ ...d, defaultTaxRate: e.target.value }))}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="settingsNumberFormat">Receipt number format</Label>
-          <Input id="settingsNumberFormat" value={data.numberFormat} onChange={e => setData(d => ({ ...d, numberFormat: e.target.value }))} className="font-mono" />
+          <Input
+            id="settingsNumberFormat"
+            value={data.numberFormat}
+            onChange={(e) => setData((d) => ({ ...d, numberFormat: e.target.value }))}
+            className="font-mono"
+          />
           <div className="mt-1 flex flex-wrap gap-1.5">
             {[
               { token: "{YYYY}", desc: "Year" },
@@ -85,7 +102,11 @@ export function DefaultsForm({ initialData }: DefaultsProps) {
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex justify-end border-t border-border/60 pt-4">
           <Button className="gap-2 shadow-sm" onClick={handleSave} disabled={isPending || saved}>
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
             {saved ? "Saved!" : "Save defaults"}
           </Button>
         </div>

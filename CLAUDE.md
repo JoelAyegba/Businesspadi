@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-ReceiptFlow — Next.js 14 (App Router) SaaS for branded receipts and invoices, targeted at the West African market. Built through Phase 4: receipts, invoices, clients, products, onboarding, PDF, public share links, email delivery, and Paystack billing.
+Businesspadi — Next.js 14 (App Router) SaaS for branded receipts and invoices, targeted at the West African market. Built through Phase 4: receipts, invoices, clients, products, onboarding, PDF, public share links, email delivery, and Paystack billing.
 
 The repo lives inside `receiptflow/`; the parent folder also contains `ReceiptFlow_Implementation_Plan.docx`, the multi-phase build plan that sequences future work.
 
@@ -12,21 +12,21 @@ The repo lives inside `receiptflow/`; the parent folder also contains `ReceiptFl
 
 All commands run from `receiptflow/`.
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Local dev server on :3000 |
-| `npm run build` | Production build — runs `prisma generate` first |
-| `npm run lint` | ESLint (Next config) |
-| `npm run typecheck` | `tsc --noEmit` — strict mode |
-| `npm run format` / `format:check` | Prettier |
-| `npm test` | Vitest unit tests |
-| `npx vitest run path/to/file.test.ts` | Run a single unit test file |
-| `npm run test:e2e` | Playwright E2E |
-| `npx playwright test path/to/file.spec.ts` | Run a single E2E spec |
-| `npm run db:migrate` | Create + apply a Prisma migration locally (Neon dev branch) |
-| `npm run db:deploy` | Apply pending migrations (CI / prod) |
-| `npm run db:seed` | `tsx scripts/seed.ts` — demo data |
-| `npm run db:studio` | Prisma Studio |
+| Command                                    | Purpose                                                     |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| `npm run dev`                              | Local dev server on :3000                                   |
+| `npm run build`                            | Production build — runs `prisma generate` first             |
+| `npm run lint`                             | ESLint (Next config)                                        |
+| `npm run typecheck`                        | `tsc --noEmit` — strict mode                                |
+| `npm run format` / `format:check`          | Prettier                                                    |
+| `npm test`                                 | Vitest unit tests                                           |
+| `npx vitest run path/to/file.test.ts`      | Run a single unit test file                                 |
+| `npm run test:e2e`                         | Playwright E2E                                              |
+| `npx playwright test path/to/file.spec.ts` | Run a single E2E spec                                       |
+| `npm run db:migrate`                       | Create + apply a Prisma migration locally (Neon dev branch) |
+| `npm run db:deploy`                        | Apply pending migrations (CI / prod)                        |
+| `npm run db:seed`                          | `tsx scripts/seed.ts` — demo data                           |
+| `npm run db:studio`                        | Prisma Studio                                               |
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, `prisma validate`, and build on every PR. Husky + lint-staged run prettier + eslint --fix on staged files pre-commit.
 
@@ -39,6 +39,7 @@ Local development requires API keys from seven services (Clerk, Neon, Cloudinary
 Every business-owned row carries `businessId`. Tenant isolation is **discipline-based, not enforced by the database** (decision 0001 in [DECISIONS.md](DECISIONS.md)).
 
 The single rule:
+
 1. Every server component, server action, and route handler under `/app` starts with [`getServerContext()`](lib/auth.ts) (or `requireBusinessContext()` when auth is mandatory).
 2. Every Prisma query against a business-owned table (`Receipt`, `Client`, `ReceiptLineItem`, `Membership`) **must** include `businessId` in its `WHERE`.
 
@@ -79,18 +80,29 @@ User → Business linkage happens in the Clerk `user.created` webhook (`/api/web
 
 [`lib/billing/index.ts`](lib/billing/index.ts) defines a `BillingProvider` interface and exports the active one as `billingProvider` — Paystack ([`lib/billing/paystack.ts`](lib/billing/paystack.ts), decision 0007); [`lib/billing/stripe.ts`](lib/billing/stripe.ts) is an unwired alternative. Consumers depend only on `billingProvider`, never on a concrete provider. Plan limits live in `PLAN_LIMITS`; `isPro()` treats `past_due` as still-pro to avoid yanking access mid-grace-period.
 
+### Document templates (decision 0008)
+
+A receipt/invoice is rendered twice, from one source: `buildDocModel` ([lib/document-model.ts](lib/document-model.ts)) decides **what** it says (labels, totals rows, amount in words, PAID/VOID stamp, pay-to). The template ([lib/templates.ts](lib/templates.ts)) decides **how**: one of 4 layout families + a hex palette.
+
+- Web: `components/receipt/layouts/*` (palette → `doc-*` Tailwind colours via CSS variables; container queries `@md:` etc.). PDF: `lib/pdf/layouts/*`, same palette hex. **Change a layout in both places.**
+- Template ids are persisted on `Receipt.templateId`; never rename/remove one.
+- Documents are paper: no `dark:` classes in layouts.
+- **Money is always Inter.** Playfair Display / JetBrains Mono (headings, numbers) have no ₦ glyph. PDF fonts are embedded TTFs in `lib/pdf/fonts/` (built-in Helvetica can't draw ₦); keep `outputFileTracingIncludes` in `next.config.mjs` in sync with PDF routes.
+- react-pdf decodes PNG/JPEG only (`pdfImageSrc` skips others); uploads are stored as PNG.
+- Preview every template with sample data at `/dev/templates` (dev only; `?doc=invoice`, `?width=380`).
+
 ### Other infrastructure
 
 - `lib/db.ts` — Prisma singleton (avoid hot-reload connection storms in dev)
 - `lib/cloudinary.ts` — signed-upload helper; logos use the `logos` preset (signed, 2 MB, eager 400×400), receipts use `receipts` (Phase 4)
 - `lib/email/` — Resend client + templates
-- `lib/pdf.ts` — Phase 1 stub; PDF lib choice (jsPDF vs react-pdf) is open (decision 0004)
+- `lib/pdf.ts` — PDF entry point (`renderReceiptPdf`, receipts and invoices); react-pdf (decision 0004)
 - Sentry is wired across client/server/edge but no-ops when `NEXT_PUBLIC_SENTRY_DSN` is unset, so local dev doesn't need it.
 
 ## Working agreement
 
 - Trunk-based; short-lived branches off `main`.
 - **Migration PRs reviewed extra carefully; never merged Friday afternoon.**
-- Engines: Node ≥ 20.
+- Engines: Node ≥ 22 (CI runs 22 LTS).
 - TypeScript strict; don't loosen `tsconfig.json` to silence errors.
 - Decisions worth recording (architecture, library choices, trade-offs) get a new entry at the top of [DECISIONS.md](DECISIONS.md), ADR-style.

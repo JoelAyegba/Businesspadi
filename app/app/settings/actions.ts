@@ -20,7 +20,10 @@ const imageUrl = z
   .string()
   .max(3_000_000, "Image is too large")
   .refine(
-    (v) => v === "" || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(v) || /^https:\/\//.test(v),
+    (v) =>
+      v === "" ||
+      /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(v) ||
+      /^https:\/\//.test(v),
     "Invalid image",
   );
 
@@ -28,7 +31,10 @@ const optionalText = (max: number) => z.string().trim().max(max).nullish();
 
 const brandingSchema = z
   .object({
-    brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Brand color must be a hex value like #1B4F8A").optional(),
+    brandColor: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/, "Brand color must be a hex value like #1B4F8A")
+      .optional(),
     logoUrl: imageUrl.optional(),
   })
   .strict();
@@ -57,7 +63,10 @@ const defaultsSchema = z
       .trim()
       .toUpperCase()
       .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter code"),
-    defaultTaxRate: z.number().min(0, "Tax rate can't be negative").max(100, "Tax rate can't exceed 100%"),
+    defaultTaxRate: z
+      .number()
+      .min(0, "Tax rate can't be negative")
+      .max(100, "Tax rate can't exceed 100%"),
     numberFormat: z
       .string()
       .trim()
@@ -78,7 +87,10 @@ function revalidateBusiness(businessId: string) {
   revalidateTag(`receipts-${businessId}`);
 }
 
-export async function updateBranding(input: { brandColor?: string; logoUrl?: string }): Promise<SettingsActionResult> {
+export async function updateBranding(input: {
+  brandColor?: string;
+  logoUrl?: string;
+}): Promise<SettingsActionResult> {
   const { business } = await requireBusinessContext();
 
   const parsed = brandingSchema.safeParse(input);
@@ -153,6 +165,49 @@ export async function updateDefaults(input: {
       defaultCurrency: d.defaultCurrency,
       defaultTaxRate: d.defaultTaxRate.toString(),
       numberFormat: d.numberFormat,
+    },
+  });
+
+  revalidateBusiness(business.id);
+  return { ok: true };
+}
+
+const paymentDetailsSchema = z
+  .object({
+    bankName: z.string().trim().max(80),
+    bankAccountName: z.string().trim().max(120),
+    // NUBAN (10 digits) or longer international formats (IBAN up to 34).
+    bankAccountNumber: z
+      .string()
+      .trim()
+      .regex(/^$|^[A-Za-z0-9 -]{6,34}$/, "Account number should be 6 to 34 letters or digits"),
+  })
+  .strict()
+  .refine((d) => !d.bankAccountNumber || d.bankName, {
+    message: "Add the bank name for this account",
+  })
+  .refine((d) => !d.bankName || d.bankAccountNumber, {
+    message: "Add the account number",
+  });
+
+/** Bank details printed as "Pay to" on invoices. All empty clears them. */
+export async function updatePaymentDetails(input: {
+  bankName: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+}): Promise<SettingsActionResult> {
+  const { business } = await requireBusinessContext();
+
+  const parsed = paymentDetailsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  const d = parsed.data;
+
+  await prisma.business.update({
+    where: { id: business.id },
+    data: {
+      bankName: d.bankName || null,
+      bankAccountName: d.bankAccountName || null,
+      bankAccountNumber: d.bankAccountNumber || null,
     },
   });
 

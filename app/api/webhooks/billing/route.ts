@@ -1,11 +1,11 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import { prisma } from "@/lib/db";
 import { getStripe } from "@/lib/billing/stripe";
 
 /**
- * Stripe webhook → ReceiptFlow subscription state.
+ * Stripe webhook → Businesspadi subscription state.
  * Phase 0 wires the verification + idempotency. Phase 4 fills in
  * subscriptionStatus updates, downgrade behaviour, and Pro-only feature gates.
  */
