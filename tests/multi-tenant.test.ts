@@ -18,6 +18,7 @@ const aggregateMock = vi.fn();
 const countMock = vi.fn();
 const updateMock = vi.fn();
 const findUniqueMock = vi.fn();
+const groupByMock = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   prisma: {
@@ -27,6 +28,7 @@ vi.mock("@/lib/db", () => ({
       aggregate: aggregateMock,
       count: countMock,
       update: updateMock,
+      groupBy: groupByMock,
     },
     business: {
       findUniqueOrThrow: findUniqueMock,
@@ -49,6 +51,7 @@ beforeEach(() => {
   countMock.mockReset();
   updateMock.mockReset();
   findUniqueMock.mockReset();
+  groupByMock.mockReset();
 });
 
 describe("business-scoped query layer", () => {
@@ -79,19 +82,28 @@ describe("business-scoped query layer", () => {
     expect(r).toBeNull();
   });
 
-  it("getDashboardKpis scopes every aggregate to businessId and RECEIPT", async () => {
-    aggregateMock.mockResolvedValue({ _sum: { total: null } });
-    countMock.mockResolvedValue(0);
-    const { getDashboardKpis } = await import("@/lib/queries/receipts");
-    await getDashboardKpis("biz_A", "NGN");
-    for (const call of aggregateMock.mock.calls) {
-      expect(call[0].where.businessId).toBe("biz_A");
-      expect(call[0].where.documentType).toBe("RECEIPT");
-    }
-    for (const call of countMock.mock.calls) {
-      expect(call[0].where.businessId).toBe("biz_A");
-      expect(call[0].where.documentType).toBe("RECEIPT");
-    }
+  it("getDocumentKpis scopes its single grouped query to businessId", async () => {
+    groupByMock.mockResolvedValue([]);
+    const { getDocumentKpis } = await import("@/lib/queries/kpis");
+    await getDocumentKpis("biz_A", "NGN");
+    expect(groupByMock).toHaveBeenCalledOnce();
+    expect(groupByMock.mock.calls[0]![0].where.businessId).toBe("biz_A");
+  });
+
+  it("getDocumentKpis keeps receipt and invoice figures separate", async () => {
+    const dec = (n: number) => ({ toNumber: () => n });
+    groupByMock.mockResolvedValue([
+      { documentType: "RECEIPT", status: "PAID", _sum: { total: dec(100) }, _count: { _all: 2 } },
+      { documentType: "RECEIPT", status: "ISSUED", _sum: { total: dec(50) }, _count: { _all: 1 } },
+      { documentType: "RECEIPT", status: "DRAFT", _sum: { total: dec(999) }, _count: { _all: 4 } },
+      { documentType: "INVOICE", status: "ISSUED", _sum: { total: dec(300) }, _count: { _all: 3 } },
+      { documentType: "INVOICE", status: "PAID", _sum: { total: dec(70) }, _count: { _all: 1 } },
+      { documentType: "INVOICE", status: "DRAFT", _sum: { total: dec(5) }, _count: { _all: 2 } },
+    ]);
+    const { getDocumentKpis } = await import("@/lib/queries/kpis");
+    const { receipts, invoices } = await getDocumentKpis("biz_A", "NGN");
+    expect(receipts).toEqual({ revenue: 150, receiptsIssued: 3, draftCount: 4, currency: "NGN" });
+    expect(invoices).toEqual({ outstanding: 300, draftCount: 2, invoiceCount: 4, unpaidCount: 3, currency: "NGN" });
   });
 
   it("listReceipts filters to documentType RECEIPT (invoices excluded)", async () => {
@@ -119,17 +131,6 @@ describe("business-scoped query layer", () => {
     expect(args.where.businessId).toBe("biz_A");
     expect(args.where.id).toBe("inv_owned_by_B");
     expect(args.where.documentType).toBe("INVOICE");
-  });
-
-  it("getInvoiceKpis scopes every query to businessId and INVOICE", async () => {
-    aggregateMock.mockResolvedValue({ _sum: { total: null } });
-    countMock.mockResolvedValue(0);
-    const { getInvoiceKpis } = await import("@/lib/queries/invoices");
-    await getInvoiceKpis("biz_A", "NGN");
-    for (const call of [...aggregateMock.mock.calls, ...countMock.mock.calls]) {
-      expect(call[0].where.businessId).toBe("biz_A");
-      expect(call[0].where.documentType).toBe("INVOICE");
-    }
   });
 
   it("free-tier usage check scopes by businessId", async () => {

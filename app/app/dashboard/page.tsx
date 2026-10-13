@@ -78,7 +78,7 @@ export default async function DashboardPage() {
 
       {/* ─── KPI Grid — streams in ───────────────────────────────────── */}
       <Suspense fallback={<KpiSkeleton />}>
-        <KpiSection businessId={business.id} />
+        <KpiSection businessId={business.id} currency={business.defaultCurrency} />
       </Suspense>
 
       <section className="animate-fade-in-delay-2 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">

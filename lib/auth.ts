@@ -21,15 +21,32 @@ export type ServerContext = {
   business: { id: string; name: string; slug: string; brandColor: string | null; defaultCurrency: string; profileComplete: boolean } | null;
 };
 
+const CONTEXT_BUSINESS_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  brandColor: true,
+  defaultCurrency: true,
+  profileComplete: true,
+} as const satisfies Prisma.BusinessSelect;
+
 export const getServerContext = cache(async function getServerContext(): Promise<ServerContext> {
   const { userId: clerkId } = auth();
   if (!clerkId) return { user: null, business: null };
 
+  // One round trip: runs on every /app page before anything renders, and the
+  // DB is far from dev machines. "join" loads the relations via LATERAL joins
+  // instead of one sequential query each. Select only what the context
+  // returns — the full Business row carries base64 logo/signature images.
   const existing = await prisma.user.findUnique({
+    relationLoadStrategy: "join",
     where: { clerkId },
-    include: {
+    select: {
+      id: true,
+      clerkId: true,
+      email: true,
       memberships: {
-        include: { business: true },
+        select: { business: { select: CONTEXT_BUSINESS_SELECT } },
         orderBy: { createdAt: "asc" },
         take: 1,
       },

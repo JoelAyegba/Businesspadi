@@ -107,34 +107,3 @@ export async function getReceipt(businessId: string, id: string): Promise<MockRe
   });
   return r ? toView(r) : null;
 }
-
-export type DashboardKpis = {
-  revenue: number;
-  receiptsIssued: number;
-  draftCount: number;
-  currency: string;
-};
-
-export function getDashboardKpis(businessId: string, currency: string): Promise<DashboardKpis> {
-  return unstable_cache(
-    async () => {
-      const [revenueAgg, receiptsIssued, draftCount] = await Promise.all([
-        prisma.receipt.aggregate({
-          where: { businessId, documentType: "RECEIPT", status: { in: ["ISSUED", "PAID"] } },
-          _sum: { total: true },
-        }),
-        prisma.receipt.count({ where: { businessId, documentType: "RECEIPT", status: { in: ["ISSUED", "PAID"] } } }),
-        prisma.receipt.count({ where: { businessId, documentType: "RECEIPT", status: "DRAFT" } }),
-      ]);
-
-      return {
-        revenue: revenueAgg._sum.total ? toNumber(revenueAgg._sum.total) : 0,
-        receiptsIssued,
-        draftCount,
-        currency,
-      };
-    },
-    ["dashboard-kpis", businessId, currency],
-    { revalidate: 60, tags: [`receipts-${businessId}`] }
-  )();
-}

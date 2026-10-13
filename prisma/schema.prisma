@@ -3,7 +3,11 @@
 // in queries via getServerContext() (lib/auth.ts). NEVER query without it.
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  // Load `include`d relations in ONE query (LATERAL joins) instead of one
+  // query per relation. The DB is far away (~1s round trip from dev machines),
+  // so sequential relation queries dominate page load. See lib/auth.ts.
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
