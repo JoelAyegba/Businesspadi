@@ -9,59 +9,52 @@
  */
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import { createElement, type ReactElement } from "react";
+import type { DocumentType } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { ReceiptPdfDocument, type PdfReceiptInput } from "@/lib/pdf/receipt-pdf";
-import { applySnapshot, DEFAULT_BRAND_COLOR, SNAPSHOT_SELECT } from "@/lib/queries/business-view";
+import { buildDocModel, type DocModel } from "@/lib/document-model";
+import { ReceiptPdfDocument } from "@/lib/pdf/receipt-pdf";
+import { toBusinessView } from "@/lib/queries/business-view";
+import { receiptInclude, toView } from "@/lib/queries/receipts";
 
 // renderToBuffer is typed for ReactElement<DocumentProps>; our component
 // returns a <Document> at runtime but TS only sees the prop shape, hence
 // this cast at the boundary.
 type DocumentElement = ReactElement<DocumentProps>;
 
-export type ReceiptPdfInput = { receiptId: string; businessId: string };
+export type ReceiptPdfInput = {
+  receiptId: string;
+  businessId: string;
+  documentType?: DocumentType;
+};
+
+/** Render an already-built document model (also used by the template preview script). */
+export async function renderDocModelPdf(model: DocModel): Promise<Uint8Array> {
+  const element = createElement(ReceiptPdfDocument, { model }) as DocumentElement;
+  return new Uint8Array(await renderToBuffer(element));
+}
 
 /**
- * Load the receipt + (snapshot) business profile and render to PDF bytes.
- * Always scopes by `businessId` — never trust the caller to have done so.
+ * Load the receipt/invoice + (snapshot) business profile and render to PDF
+ * bytes in the document's chosen template. Always scopes by `businessId` and
+ * `documentType` — never trust the caller to have done so.
  */
-export async function renderReceiptPdf({ receiptId, businessId }: ReceiptPdfInput): Promise<Uint8Array> {
-  const receipt = await prisma.receipt.findFirst({
-    where: { id: receiptId, businessId, documentType: "RECEIPT" },
-    include: { client: true, lineItems: { orderBy: { position: "asc" } } },
-  });
-  if (!receipt) throw new Error("Receipt not found");
+export async function renderReceiptPdf({
+  receiptId,
+  businessId,
+  documentType = "RECEIPT",
+}: ReceiptPdfInput): Promise<Uint8Array> {
+  const [receipt, live] = await Promise.all([
+    prisma.receipt.findFirst({
+      where: { id: receiptId, businessId, documentType },
+      include: receiptInclude,
+    }),
+    prisma.business.findUniqueOrThrow({ where: { id: businessId } }),
+  ]);
+  if (!receipt) throw new Error("Document not found");
 
-  // Prefer the snapshot frozen at issue time so retroactive branding edits
-  // never rewrite history. Fall back to live business for legacy rows.
-  const live = await prisma.business.findUniqueOrThrow({ where: { id: businessId }, select: SNAPSHOT_SELECT });
-  const biz = applySnapshot(live, receipt.businessSnapshot);
-
-  const data: PdfReceiptInput = {
-    number: receipt.number,
-    status: receipt.status,
-    issueDate: receipt.issueDate.toISOString().slice(0, 10),
-    paidAt: receipt.paidAt ? receipt.paidAt.toISOString().slice(0, 10) : null,
-    currency: receipt.currency,
-    taxRate: Number(receipt.taxRate),
-    subtotal: Number(receipt.subtotal),
-    taxTotal: Number(receipt.taxTotal),
-    total: Number(receipt.total),
-    notes: receipt.notes,
-    client: receipt.client
-      ? { name: receipt.client.name, email: receipt.client.email }
-      : null,
-    lineItems: receipt.lineItems.map((li) => ({
-      description: li.description,
-      quantity: Number(li.quantity),
-      unitPrice: Number(li.unitPrice),
-      subtotal: Number(li.subtotal),
-    })),
-    business: { ...biz, brandColor: biz.brandColor ?? DEFAULT_BRAND_COLOR },
-  };
-
-  const element = createElement(ReceiptPdfDocument, { data }) as DocumentElement;
-  const buffer = await renderToBuffer(element);
-  return new Uint8Array(buffer);
+  // Snapshot overlay: the branding the document was issued with, not today's.
+  const business = toBusinessView(live, receipt.businessSnapshot);
+  return renderDocModelPdf(buildDocModel(toView(receipt), business));
 }
 
 /** Filename per spec (Phase 2 §6.3): <business-slug>-<receipt-number>.pdf */

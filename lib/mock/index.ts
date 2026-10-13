@@ -22,6 +22,9 @@ export type MockBusiness = {
   address?: string | null;
   taxId?: string | null;
   signatureUrl?: string | null;
+  bankName?: string | null;
+  bankAccountName?: string | null;
+  bankAccountNumber?: string | null;
 };
 
 export type MockClient = {
@@ -49,6 +52,7 @@ export type MockReceipt = {
   status: ReceiptStatus;
   issueDate: string;
   paidAt: string | null;
+  paymentMethod?: string | null;
   // Invoice-only.
   dueDate?: string | null;
   paymentTerms?: string | null;

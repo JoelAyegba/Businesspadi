@@ -79,12 +79,22 @@ User → Business linkage happens in the Clerk `user.created` webhook (`/api/web
 
 [`lib/billing/index.ts`](lib/billing/index.ts) defines a `BillingProvider` interface and exports the active one as `billingProvider` — Paystack ([`lib/billing/paystack.ts`](lib/billing/paystack.ts), decision 0007); [`lib/billing/stripe.ts`](lib/billing/stripe.ts) is an unwired alternative. Consumers depend only on `billingProvider`, never on a concrete provider. Plan limits live in `PLAN_LIMITS`; `isPro()` treats `past_due` as still-pro to avoid yanking access mid-grace-period.
 
+### Document templates (decision 0008)
+
+A receipt/invoice is rendered twice, from one source: `buildDocModel` ([lib/document-model.ts](lib/document-model.ts)) decides **what** it says (labels, totals rows, amount in words, PAID/VOID stamp, pay-to). The template ([lib/templates.ts](lib/templates.ts)) decides **how**: one of 4 layout families + a hex palette.
+- Web: `components/receipt/layouts/*` (palette → `doc-*` Tailwind colours via CSS variables; container queries `@md:` etc.). PDF: `lib/pdf/layouts/*`, same palette hex. **Change a layout in both places.**
+- Template ids are persisted on `Receipt.templateId`; never rename/remove one.
+- Documents are paper: no `dark:` classes in layouts.
+- **Money is always Inter.** Playfair Display / JetBrains Mono (headings, numbers) have no ₦ glyph. PDF fonts are embedded TTFs in `lib/pdf/fonts/` (built-in Helvetica can't draw ₦); keep `outputFileTracingIncludes` in `next.config.mjs` in sync with PDF routes.
+- react-pdf decodes PNG/JPEG only (`pdfImageSrc` skips others); uploads are stored as PNG.
+- Preview every template with sample data at `/dev/templates` (dev only; `?doc=invoice`, `?width=380`).
+
 ### Other infrastructure
 
 - `lib/db.ts` — Prisma singleton (avoid hot-reload connection storms in dev)
 - `lib/cloudinary.ts` — signed-upload helper; logos use the `logos` preset (signed, 2 MB, eager 400×400), receipts use `receipts` (Phase 4)
 - `lib/email/` — Resend client + templates
-- `lib/pdf.ts` — Phase 1 stub; PDF lib choice (jsPDF vs react-pdf) is open (decision 0004)
+- `lib/pdf.ts` — PDF entry point (`renderReceiptPdf`, receipts and invoices); react-pdf (decision 0004)
 - Sentry is wired across client/server/edge but no-ops when `NEXT_PUBLIC_SENTRY_DSN` is unset, so local dev doesn't need it.
 
 ## Working agreement

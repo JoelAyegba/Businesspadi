@@ -42,6 +42,7 @@ export function toView(r: ReceiptWithRelations): MockReceipt {
     status: r.status as ReceiptStatus,
     issueDate: toIsoDate(r.issueDate)!,
     paidAt: toIsoDate(r.paidAt),
+    paymentMethod: r.paymentMethod,
     dueDate: toIsoDate(r.dueDate),
     paymentTerms: r.paymentTerms,
     currency: r.currency,

@@ -1,398 +1,337 @@
 /**
- * Invoice/Receipt Template System
+ * Receipt / invoice templates.
  *
- * Each template defines a complete visual identity via CSS class tokens.
- * The ReceiptDocument component reads these tokens to render differently.
+ * A template is DATA — layout family + heading font + hex palette — consumed
+ * by both renderers: the web document (components/receipt/layouts/*) maps the
+ * palette to CSS variables, the PDF (lib/pdf/layouts/*) uses the same hex
+ * values. One source of truth, so screen and PDF can't drift.
+ *
+ * Ids are persisted on Receipt.templateId — never rename or remove one.
+ * Documents are paper: palettes are fixed and ignore the app's dark mode.
  */
 
-export interface InvoiceTemplate {
+export type LayoutFamily = "letterhead" | "banner" | "editorial" | "sidebar";
+
+/** Heading font. Money ALWAYS renders in sans (only Inter has ₦/₵). */
+export type TemplateFont = "sans" | "serif" | "mono";
+
+export type DocPalette = {
+  /** Page background. */
+  paper: string;
+  /** Primary text. */
+  ink: string;
+  /** Secondary text, labels. */
+  muted: string;
+  /** Hairlines and table rules. */
+  line: string;
+  /** The template's single accent colour. */
+  accent: string;
+  /** Tinted fill (totals box, row tint), derived from the accent. */
+  accentSoft: string;
+  /** Text on a solid accent fill. */
+  accentInk: string;
+  /** Header band (banner) / side column (sidebar). */
+  band: string;
+  /** Text on the band. */
+  bandInk: string;
+  /** Secondary text on the band. */
+  bandMuted: string;
+  /** Labels / highlights on the band. */
+  bandAccent: string;
+  /** PAID stamp. */
+  paid: string;
+  /** VOID stamp. */
+  void: string;
+};
+
+export interface DocTemplate {
   id: string;
   name: string;
   description: string;
-  /** Mini-preview colors for the selector card */
-  preview: { headerBg: string; accentBg: string; bodyBg: string };
-  /** Actual styling tokens applied to the document */
-  styles: {
-    wrapper: string;
-    accentBar: string;
-    headerBg: string;
-    headerTitle: string;
-    headerMeta: string;
-    badge: (status: string, isInvoice: boolean) => string;
-    sectionBorder: string;
-    sectionLabel: string;
-    sectionValue: string;
-    lineItemCard: string;
-    lineItemTitle: string;
-    lineItemMeta: string;
-    lineItemAmount: string;
-    tableHeader: string;
-    tableRow: string;
-    tableDivider: string;
-    totalLabel: string;
-    totalValue: string;
-    totalBorder: string;
-    footerBg: string;
-    footerText: string;
-  };
+  layout: LayoutFamily;
+  font: TemplateFont;
+  /** Accent (and band) follow the business brand colour. */
+  useBrandColor?: boolean;
+  palette: DocPalette;
 }
 
-const badgeBase = "inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold tracking-widest uppercase border";
+const LIGHT = {
+  paper: "#FFFFFF",
+  ink: "#0F172A",
+  muted: "#64748B",
+  line: "#E2E8F0",
+  accentInk: "#FFFFFF",
+  bandInk: "#FFFFFF",
+  paid: "#15803D",
+  void: "#B91C1C",
+} as const;
 
-function makeBadge(paid: string, unpaid: string, voided: string, draft: string) {
-  return (status: string, isInvoice: boolean) => {
-    if (status === "PAID") return `${badgeBase} ${paid}`;
-    if (status === "VOID") return `${badgeBase} ${voided}`;
-    if (status === "ISSUED" && isInvoice) return `${badgeBase} ${unpaid}`;
-    return `${badgeBase} ${draft}`;
-  };
-}
-
-export const TEMPLATES: InvoiceTemplate[] = [
+export const TEMPLATES: DocTemplate[] = [
+  // ── Letterhead ──────────────────────────────────────────────────────────
   {
     id: "classic",
     name: "Classic",
-    description: "Clean and professional",
-    preview: { headerBg: "#ffffff", accentBg: "#2563eb", bodyBg: "#f8fafc" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-slate-200/80 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600",
-      headerBg: "px-6 py-8",
-      headerTitle: "text-slate-900 dark:text-white",
-      headerMeta: "text-slate-400 dark:text-slate-500",
-      badge: makeBadge(
-        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
-        "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
-        "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
-        "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
-      ),
-      sectionBorder: "border-slate-200 dark:border-slate-800",
-      sectionLabel: "text-slate-400 dark:text-slate-500",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-slate-50 border-slate-100 dark:bg-slate-900/50 dark:border-slate-800",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-slate-900 dark:text-white",
-      tableHeader: "text-slate-400 border-slate-200 dark:text-slate-500 dark:border-slate-800",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-slate-100 dark:divide-slate-800",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-slate-900 dark:text-white",
-      totalBorder: "border-slate-200 dark:border-slate-700",
-      footerBg: "bg-slate-50 border-slate-200 dark:bg-slate-900/30 dark:border-slate-800",
-      footerText: "text-slate-500 dark:text-slate-400",
-    },
-  },
-  {
-    id: "modern",
-    name: "Modern",
-    description: "Bold dark header",
-    preview: { headerBg: "#0f172a", accentBg: "#6366f1", bodyBg: "#ffffff" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-slate-200/80 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-600",
-      headerBg: "px-6 py-8 bg-slate-900 dark:bg-slate-950 text-white",
-      headerTitle: "text-white",
-      headerMeta: "text-slate-400",
-      badge: makeBadge(
-        "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-        "bg-amber-500/20 text-amber-300 border-amber-500/30",
-        "bg-red-500/20 text-red-300 border-red-500/30",
-        "bg-slate-700 text-slate-300 border-slate-600"
-      ),
-      sectionBorder: "border-slate-200 dark:border-slate-800",
-      sectionLabel: "text-slate-400 dark:text-slate-500",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-indigo-50/50 border-indigo-100 dark:bg-indigo-500/5 dark:border-indigo-500/10",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-indigo-700 dark:text-indigo-400",
-      tableHeader: "text-slate-400 border-slate-200 dark:text-slate-500 dark:border-slate-800",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-slate-100 dark:divide-slate-800",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-indigo-700 dark:text-indigo-400",
-      totalBorder: "border-indigo-200 dark:border-indigo-500/20",
-      footerBg: "bg-slate-900 border-slate-800 dark:bg-slate-950 dark:border-slate-800",
-      footerText: "text-slate-400",
-    },
-  },
-  {
-    id: "minimal",
-    name: "Minimal",
-    description: "Ultra-clean simplicity",
-    preview: { headerBg: "#ffffff", accentBg: "#d1d5db", bodyBg: "#ffffff" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-slate-100 dark:border-slate-900",
-      accentBar: "bg-slate-300 dark:bg-slate-700 h-px",
-      headerBg: "px-6 py-10",
-      headerTitle: "text-slate-800 dark:text-slate-200",
-      headerMeta: "text-slate-400 dark:text-slate-600",
-      badge: makeBadge(
-        "bg-transparent text-emerald-600 border-emerald-300 dark:text-emerald-400 dark:border-emerald-600",
-        "bg-transparent text-amber-600 border-amber-300 dark:text-amber-400 dark:border-amber-600",
-        "bg-transparent text-red-600 border-red-300 dark:text-red-400 dark:border-red-600",
-        "bg-transparent text-slate-500 border-slate-300 dark:text-slate-400 dark:border-slate-600"
-      ),
-      sectionBorder: "border-slate-100 dark:border-slate-900",
-      sectionLabel: "text-slate-400 dark:text-slate-600",
-      sectionValue: "text-slate-700 dark:text-slate-300",
-      lineItemCard: "bg-white border-slate-100 dark:bg-slate-950 dark:border-slate-900",
-      lineItemTitle: "text-slate-700 dark:text-slate-300",
-      lineItemMeta: "text-slate-400 dark:text-slate-600",
-      lineItemAmount: "text-slate-700 dark:text-slate-300",
-      tableHeader: "text-slate-300 border-slate-100 dark:text-slate-700 dark:border-slate-900",
-      tableRow: "text-slate-700 dark:text-slate-300",
-      tableDivider: "divide-slate-50 dark:divide-slate-900",
-      totalLabel: "text-slate-400 dark:text-slate-600",
-      totalValue: "text-slate-800 dark:text-slate-200",
-      totalBorder: "border-slate-100 dark:border-slate-900",
-      footerBg: "bg-white border-slate-100 dark:bg-slate-950 dark:border-slate-900",
-      footerText: "text-slate-400 dark:text-slate-600",
-    },
-  },
-  {
-    id: "executive",
-    name: "Executive",
-    description: "Rich & prestigious",
-    preview: { headerBg: "#1e293b", accentBg: "#f59e0b", bodyBg: "#fefce8" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500",
-      headerBg: "px-6 py-8 bg-slate-800 dark:bg-slate-900",
-      headerTitle: "text-white",
-      headerMeta: "text-amber-300/70",
-      badge: makeBadge(
-        "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-        "bg-amber-500/20 text-amber-200 border-amber-500/30",
-        "bg-red-500/20 text-red-300 border-red-500/30",
-        "bg-slate-700 text-slate-300 border-slate-600"
-      ),
-      sectionBorder: "border-slate-200 dark:border-slate-800",
-      sectionLabel: "text-amber-600 dark:text-amber-500",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-amber-50/50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/10",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-amber-700 dark:text-amber-400",
-      tableHeader: "text-amber-600/70 border-amber-200 dark:text-amber-500/50 dark:border-amber-500/10",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-amber-100/50 dark:divide-amber-500/10",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-amber-700 dark:text-amber-400",
-      totalBorder: "border-amber-200 dark:border-amber-500/20",
-      footerBg: "bg-slate-800 border-slate-700 dark:bg-slate-900 dark:border-slate-800",
-      footerText: "text-amber-300/70",
-    },
-  },
-  {
-    id: "neon",
-    name: "Neon",
-    description: "Vibrant & techy",
-    preview: { headerBg: "#020617", accentBg: "#22c55e", bodyBg: "#0f172a" },
-    styles: {
-      wrapper: "bg-slate-950 border-slate-800 text-white",
-      accentBar: "bg-gradient-to-r from-green-500 via-emerald-400 to-green-500",
-      headerBg: "px-6 py-8 bg-slate-950",
-      headerTitle: "text-green-400",
-      headerMeta: "text-slate-500",
-      badge: makeBadge(
-        "bg-green-500/20 text-green-400 border-green-500/30",
-        "bg-amber-500/20 text-amber-400 border-amber-500/30",
-        "bg-red-500/20 text-red-400 border-red-500/30",
-        "bg-slate-800 text-slate-400 border-slate-700"
-      ),
-      sectionBorder: "border-slate-800",
-      sectionLabel: "text-green-500/70",
-      sectionValue: "text-white",
-      lineItemCard: "bg-slate-900 border-slate-800",
-      lineItemTitle: "text-white",
-      lineItemMeta: "text-slate-500",
-      lineItemAmount: "text-green-400",
-      tableHeader: "text-green-500/50 border-slate-800",
-      tableRow: "text-white",
-      tableDivider: "divide-slate-800",
-      totalLabel: "text-slate-500",
-      totalValue: "text-green-400",
-      totalBorder: "border-green-500/20",
-      footerBg: "bg-slate-900 border-slate-800",
-      footerText: "text-slate-500",
-    },
-  },
-  {
-    id: "sunset",
-    name: "Sunset",
-    description: "Warm gradient tones",
-    preview: { headerBg: "#7c2d12", accentBg: "#f97316", bodyBg: "#fff7ed" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-orange-200/60 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500",
-      headerBg: "px-6 py-8 bg-gradient-to-br from-orange-600 to-rose-600",
-      headerTitle: "text-white",
-      headerMeta: "text-orange-200/70",
-      badge: makeBadge(
-        "bg-white/20 text-white border-white/30",
-        "bg-white/20 text-white border-white/30",
-        "bg-white/20 text-white border-white/30",
-        "bg-white/20 text-white border-white/30"
-      ),
-      sectionBorder: "border-orange-100 dark:border-slate-800",
-      sectionLabel: "text-orange-400 dark:text-orange-500",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-orange-50/50 border-orange-100 dark:bg-orange-500/5 dark:border-orange-500/10",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-orange-700 dark:text-orange-400",
-      tableHeader: "text-orange-400 border-orange-200 dark:text-orange-500 dark:border-orange-500/10",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-orange-100 dark:divide-orange-500/10",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-orange-700 dark:text-orange-400",
-      totalBorder: "border-orange-200 dark:border-orange-500/20",
-      footerBg: "bg-orange-50 border-orange-100 dark:bg-slate-900/30 dark:border-slate-800",
-      footerText: "text-orange-600/70 dark:text-orange-400/50",
-    },
-  },
-  {
-    id: "ocean",
-    name: "Ocean",
-    description: "Cool teal vibes",
-    preview: { headerBg: "#134e4a", accentBg: "#14b8a6", bodyBg: "#f0fdfa" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-teal-200/60 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500",
-      headerBg: "px-6 py-8 bg-teal-800 dark:bg-teal-950",
-      headerTitle: "text-white",
-      headerMeta: "text-teal-300/70",
-      badge: makeBadge(
-        "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-        "bg-amber-500/20 text-amber-300 border-amber-500/30",
-        "bg-red-500/20 text-red-300 border-red-500/30",
-        "bg-teal-700 text-teal-300 border-teal-600"
-      ),
-      sectionBorder: "border-teal-100 dark:border-slate-800",
-      sectionLabel: "text-teal-500 dark:text-teal-600",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-teal-50/50 border-teal-100 dark:bg-teal-500/5 dark:border-teal-500/10",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-teal-700 dark:text-teal-400",
-      tableHeader: "text-teal-500/70 border-teal-200 dark:text-teal-600 dark:border-teal-500/10",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-teal-100 dark:divide-teal-500/10",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-teal-700 dark:text-teal-400",
-      totalBorder: "border-teal-200 dark:border-teal-500/20",
-      footerBg: "bg-teal-800 border-teal-700 dark:bg-teal-950 dark:border-slate-800",
-      footerText: "text-teal-300/70",
+    description: "Letterhead in your brand colour",
+    layout: "letterhead",
+    font: "sans",
+    useBrandColor: true,
+    palette: {
+      ...LIGHT,
+      accent: "#1D4ED8",
+      accentSoft: "#EFF4FF",
+      band: "#1D4ED8",
+      bandMuted: "#BFD3FE",
+      bandAccent: "#FFFFFF",
     },
   },
   {
     id: "mono",
     name: "Monochrome",
-    description: "Elegant grayscale",
-    preview: { headerBg: "#18181b", accentBg: "#71717a", bodyBg: "#fafafa" },
-    styles: {
-      wrapper: "bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800",
-      accentBar: "bg-zinc-800 dark:bg-zinc-200 h-[3px]",
-      headerBg: "px-6 py-8",
-      headerTitle: "text-zinc-900 dark:text-zinc-100",
-      headerMeta: "text-zinc-400 dark:text-zinc-600",
-      badge: makeBadge(
-        "bg-zinc-100 text-zinc-700 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
-        "bg-zinc-100 text-zinc-700 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
-        "bg-zinc-100 text-zinc-700 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
-        "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700"
-      ),
-      sectionBorder: "border-zinc-200 dark:border-zinc-800",
-      sectionLabel: "text-zinc-400 dark:text-zinc-600",
-      sectionValue: "text-zinc-900 dark:text-zinc-100",
-      lineItemCard: "bg-zinc-50 border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800",
-      lineItemTitle: "text-zinc-900 dark:text-zinc-100",
-      lineItemMeta: "text-zinc-500 dark:text-zinc-500",
-      lineItemAmount: "text-zinc-900 dark:text-zinc-100",
-      tableHeader: "text-zinc-400 border-zinc-200 dark:text-zinc-600 dark:border-zinc-800",
-      tableRow: "text-zinc-900 dark:text-zinc-100",
-      tableDivider: "divide-zinc-100 dark:divide-zinc-800",
-      totalLabel: "text-zinc-500 dark:text-zinc-500",
-      totalValue: "text-zinc-900 dark:text-zinc-100",
-      totalBorder: "border-zinc-300 dark:border-zinc-700",
-      footerBg: "bg-zinc-50 border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800",
-      footerText: "text-zinc-500 dark:text-zinc-500",
+    description: "Grayscale letterhead, prints anywhere",
+    layout: "letterhead",
+    font: "mono",
+    palette: {
+      ...LIGHT,
+      ink: "#18181B",
+      muted: "#71717A",
+      line: "#E4E4E7",
+      accent: "#18181B",
+      accentSoft: "#F4F4F5",
+      band: "#18181B",
+      bandMuted: "#A1A1AA",
+      bandAccent: "#FFFFFF",
+      paid: "#18181B",
+      void: "#18181B",
+    },
+  },
+
+  // ── Banner ──────────────────────────────────────────────────────────────
+  {
+    id: "modern",
+    name: "Modern",
+    description: "Dark banner with the amount up front",
+    layout: "banner",
+    font: "sans",
+    palette: {
+      ...LIGHT,
+      accent: "#4338CA",
+      accentSoft: "#EEF2FF",
+      band: "#0F172A",
+      bandMuted: "#94A3B8",
+      bandAccent: "#A5B4FC",
     },
   },
   {
-    id: "lavender",
-    name: "Lavender",
-    description: "Soft & elegant",
-    preview: { headerBg: "#ede9fe", accentBg: "#8b5cf6", bodyBg: "#faf5ff" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-violet-200/60 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-violet-500 via-purple-400 to-fuchsia-500",
-      headerBg: "px-6 py-8 bg-violet-50 dark:bg-violet-950/30",
-      headerTitle: "text-violet-900 dark:text-violet-300",
-      headerMeta: "text-violet-400 dark:text-violet-500",
-      badge: makeBadge(
-        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
-        "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
-        "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
-        "bg-violet-100 text-violet-600 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20"
-      ),
-      sectionBorder: "border-violet-100 dark:border-slate-800",
-      sectionLabel: "text-violet-400 dark:text-violet-500",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-violet-50/50 border-violet-100 dark:bg-violet-500/5 dark:border-violet-500/10",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-violet-700 dark:text-violet-400",
-      tableHeader: "text-violet-400 border-violet-200 dark:text-violet-500 dark:border-violet-500/10",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-violet-100 dark:divide-violet-500/10",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-violet-700 dark:text-violet-400",
-      totalBorder: "border-violet-200 dark:border-violet-500/20",
-      footerBg: "bg-violet-50 border-violet-100 dark:bg-violet-950/20 dark:border-slate-800",
-      footerText: "text-violet-500 dark:text-violet-400/50",
+    id: "sunset",
+    name: "Sunset",
+    description: "Warm terracotta banner",
+    layout: "banner",
+    font: "sans",
+    palette: {
+      ...LIGHT,
+      ink: "#1C1917",
+      muted: "#78716C",
+      line: "#E7E5E4",
+      accent: "#C2410C",
+      accentSoft: "#FFF4EC",
+      band: "#9A3412",
+      bandMuted: "#FDBA8C",
+      bandAccent: "#FED7AA",
+    },
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    description: "Deep teal banner",
+    layout: "banner",
+    font: "sans",
+    palette: {
+      ...LIGHT,
+      accent: "#0F766E",
+      accentSoft: "#EEFBF8",
+      band: "#134E4A",
+      bandMuted: "#99D5CC",
+      bandAccent: "#5EEAD4",
     },
   },
   {
     id: "forest",
     name: "Forest",
-    description: "Natural & trustworthy",
-    preview: { headerBg: "#14532d", accentBg: "#22c55e", bodyBg: "#f0fdf4" },
-    styles: {
-      wrapper: "bg-white dark:bg-slate-950 border-green-200/60 dark:border-slate-800",
-      accentBar: "bg-gradient-to-r from-green-700 via-emerald-500 to-green-700",
-      headerBg: "px-6 py-8 bg-green-900 dark:bg-green-950",
-      headerTitle: "text-white",
-      headerMeta: "text-green-300/70",
-      badge: makeBadge(
-        "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-        "bg-amber-500/20 text-amber-300 border-amber-500/30",
-        "bg-red-500/20 text-red-300 border-red-500/30",
-        "bg-green-800 text-green-300 border-green-700"
-      ),
-      sectionBorder: "border-green-100 dark:border-slate-800",
-      sectionLabel: "text-green-600 dark:text-green-600",
-      sectionValue: "text-slate-900 dark:text-white",
-      lineItemCard: "bg-green-50/50 border-green-100 dark:bg-green-500/5 dark:border-green-500/10",
-      lineItemTitle: "text-slate-900 dark:text-white",
-      lineItemMeta: "text-slate-500 dark:text-slate-400",
-      lineItemAmount: "text-green-700 dark:text-green-400",
-      tableHeader: "text-green-500/70 border-green-200 dark:text-green-600 dark:border-green-500/10",
-      tableRow: "text-slate-900 dark:text-white",
-      tableDivider: "divide-green-100 dark:divide-green-500/10",
-      totalLabel: "text-slate-500 dark:text-slate-400",
-      totalValue: "text-green-700 dark:text-green-400",
-      totalBorder: "border-green-200 dark:border-green-500/20",
-      footerBg: "bg-green-900 border-green-800 dark:bg-green-950 dark:border-slate-800",
-      footerText: "text-green-300/70",
+    description: "Evergreen banner, calm and trustworthy",
+    layout: "banner",
+    font: "sans",
+    palette: {
+      ...LIGHT,
+      ink: "#14201A",
+      muted: "#5B6B62",
+      line: "#E2E8E4",
+      accent: "#166534",
+      accentSoft: "#EFF8F1",
+      band: "#14532D",
+      bandMuted: "#A7D3B5",
+      bandAccent: "#86EFAC",
+    },
+  },
+
+  // ── Editorial ───────────────────────────────────────────────────────────
+  {
+    id: "minimal",
+    name: "Minimal",
+    description: "Editorial whitespace, serif headings",
+    layout: "editorial",
+    font: "serif",
+    palette: {
+      ...LIGHT,
+      ink: "#111827",
+      muted: "#6B7280",
+      line: "#E5E7EB",
+      accent: "#111827",
+      accentSoft: "#F9FAFB",
+      band: "#111827",
+      bandMuted: "#9CA3AF",
+      bandAccent: "#FFFFFF",
+    },
+  },
+  {
+    id: "lavender",
+    name: "Lavender",
+    description: "Editorial with a soft violet accent",
+    layout: "editorial",
+    font: "serif",
+    palette: {
+      ...LIGHT,
+      ink: "#1E1B2E",
+      muted: "#6E6A80",
+      line: "#E9E5F5",
+      accent: "#6D28D9",
+      accentSoft: "#F6F3FE",
+      band: "#6D28D9",
+      bandMuted: "#DDD6FE",
+      bandAccent: "#FFFFFF",
+    },
+  },
+
+  // ── Sidebar ─────────────────────────────────────────────────────────────
+  {
+    id: "executive",
+    name: "Executive",
+    description: "Slate side column with gold details",
+    layout: "sidebar",
+    font: "serif",
+    palette: {
+      ...LIGHT,
+      accent: "#A16207",
+      accentSoft: "#FEF9EC",
+      band: "#1E293B",
+      bandMuted: "#94A3B8",
+      bandAccent: "#F2C46B",
+    },
+  },
+  {
+    id: "neon",
+    name: "Neon",
+    description: "Dark paper, terminal green, monospace",
+    layout: "sidebar",
+    font: "mono",
+    palette: {
+      paper: "#0B1120",
+      ink: "#E2E8F0",
+      muted: "#8B9BB4",
+      line: "#1E293B",
+      accent: "#4ADE80",
+      accentSoft: "#0F1F1A",
+      accentInk: "#052E16",
+      band: "#020617",
+      bandInk: "#E2E8F0",
+      bandMuted: "#8B9BB4",
+      bandAccent: "#4ADE80",
+      paid: "#4ADE80",
+      void: "#F87171",
     },
   },
 ];
 
 export const DEFAULT_TEMPLATE_ID = "classic";
 
-export function getTemplate(id: string): InvoiceTemplate {
+export const LAYOUT_LABELS: Record<LayoutFamily, string> = {
+  letterhead: "Letterhead",
+  banner: "Banner",
+  editorial: "Editorial",
+  sidebar: "Sidebar",
+};
+
+export function getTemplate(id: string | null | undefined): DocTemplate {
   return TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0]!;
+}
+
+// ── Colour helpers ────────────────────────────────────────────────────────
+
+function parseHex(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  let h = m[1]!;
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
+}
+
+const toHex = (rgb: number[]) =>
+  "#" +
+  rgb
+    .map((v) =>
+      Math.round(Math.min(255, Math.max(0, v)))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")
+    .toUpperCase();
+
+/** Blend `hex` toward `toward` by `amount` (0 = hex, 1 = toward). */
+export function mixHex(hex: string, toward: string, amount: number): string {
+  const a = parseHex(hex);
+  const b = parseHex(toward);
+  if (!a || !b) return hex;
+  return toHex(a.map((v, i) => v + (b[i]! - v) * amount));
+}
+
+function luminance(hex: string): number {
+  const rgb = parseHex(hex);
+  if (!rgb) return 0;
+  const [r, g, b] = rgb.map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }) as [number, number, number];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrastRatio(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Final palette for a document. For brand-colour templates the accent and
+ * band follow the business colour; pale brand colours are darkened until
+ * they reach 4.5:1 on paper so labels and totals stay legible in print.
+ */
+export function resolvePalette(template: DocTemplate, brandColor?: string | null): DocPalette {
+  const p = template.palette;
+  if (!template.useBrandColor || !brandColor || !parseHex(brandColor)) return p;
+
+  let accent = toHex(parseHex(brandColor)!);
+  for (let i = 0; i < 10 && contrastRatio(accent, p.paper) < 4.5; i++) {
+    accent = mixHex(accent, "#000000", 0.15);
+  }
+  return {
+    ...p,
+    accent,
+    accentSoft: mixHex(accent, p.paper, 0.93),
+    band: accent,
+    bandMuted: mixHex(accent, "#FFFFFF", 0.7),
+    accentInk: contrastRatio("#FFFFFF", accent) >= 4.5 ? "#FFFFFF" : p.ink,
+    bandInk: contrastRatio("#FFFFFF", accent) >= 4.5 ? "#FFFFFF" : p.ink,
+  };
 }

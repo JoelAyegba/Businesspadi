@@ -7,6 +7,13 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "5mb", // for logo uploads via server actions
     },
+    // PDF routes read embedded TTFs from disk (lib/pdf/fonts.ts); file tracing
+    // can't see fs paths, so include them explicitly or Vercel ships without.
+    outputFileTracingIncludes: {
+      "/app/receipts/[id]/pdf": ["./lib/pdf/fonts/**"],
+      "/app/invoices/[id]/pdf": ["./lib/pdf/fonts/**"],
+      "/r/[shareId]/pdf": ["./lib/pdf/fonts/**"],
+    },
   },
   images: {
     remotePatterns: [

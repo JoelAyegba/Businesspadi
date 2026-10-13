@@ -24,8 +24,9 @@ export function resizeImageFile(file: File, maxWidth: number, maxHeight: number)
         }
 
         ctx.drawImage(img, 0, 0, width, height);
-        // Compress as webp or png, max 0.8 quality
-        resolve(canvas.toDataURL(file.type === "image/png" ? "image/png" : "image/webp", 0.8));
+        // Always PNG: keeps transparency, and the PDF renderer (react-pdf)
+        // can't decode WebP. Images here are small (≤ 600px), so size is fine.
+        resolve(canvas.toDataURL("image/png"));
       };
       img.onerror = () => reject(new Error("Failed to load image"));
       img.src = e.target?.result as string;

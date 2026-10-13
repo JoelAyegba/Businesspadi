@@ -321,7 +321,7 @@ export function ReceiptBuilder({
 
       {/* ─── Template Selector ──────────────────────────────────────── */}
       <div className="animate-fade-in flex flex-col gap-4">
-        <TemplateSelector value={templateId} onChange={setTemplateId} />
+        <TemplateSelector value={templateId} onChange={setTemplateId} brandColor={business.brandColor} />
 
         {/* Mobile Preview Toggle Button */}
         <button

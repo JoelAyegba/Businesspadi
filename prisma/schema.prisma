@@ -42,6 +42,11 @@ model Business {
   invoiceNumberFormat String @default("INV-{YYYY}-{NNNN}")
   timezone        String   @default("Africa/Lagos")
 
+  // Shown as "Pay to" on invoices; snapshotted at issue (SNAPSHOT_SELECT).
+  bankName          String?
+  bankAccountName   String?
+  bankAccountNumber String?
+
   // Billing — populated in Phase 4.
   subscriptionStatus String  @default("free") // free | active | past_due | canceled
   paystackCustomerCode     String?

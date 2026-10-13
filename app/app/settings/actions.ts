@@ -159,3 +159,46 @@ export async function updateDefaults(input: {
   revalidateBusiness(business.id);
   return { ok: true };
 }
+
+const paymentDetailsSchema = z
+  .object({
+    bankName: z.string().trim().max(80),
+    bankAccountName: z.string().trim().max(120),
+    // NUBAN (10 digits) or longer international formats (IBAN up to 34).
+    bankAccountNumber: z
+      .string()
+      .trim()
+      .regex(/^$|^[A-Za-z0-9 -]{6,34}$/, "Account number should be 6 to 34 letters or digits"),
+  })
+  .strict()
+  .refine((d) => !d.bankAccountNumber || d.bankName, {
+    message: "Add the bank name for this account",
+  })
+  .refine((d) => !d.bankName || d.bankAccountNumber, {
+    message: "Add the account number",
+  });
+
+/** Bank details printed as "Pay to" on invoices. All empty clears them. */
+export async function updatePaymentDetails(input: {
+  bankName: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+}): Promise<SettingsActionResult> {
+  const { business } = await requireBusinessContext();
+
+  const parsed = paymentDetailsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  const d = parsed.data;
+
+  await prisma.business.update({
+    where: { id: business.id },
+    data: {
+      bankName: d.bankName || null,
+      bankAccountName: d.bankAccountName || null,
+      bankAccountNumber: d.bankAccountNumber || null,
+    },
+  });
+
+  revalidateBusiness(business.id);
+  return { ok: true };
+}

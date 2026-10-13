@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { BrandingForm } from "@/components/settings/branding-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { DefaultsForm } from "@/components/settings/defaults-form";
+import { PaymentDetailsForm } from "@/components/settings/payment-details-form";
 import { requireBusinessContext } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -73,6 +74,13 @@ export default async function SettingsPage() {
           defaultTaxRate: b.defaultTaxRate.toString(),
           numberFormat: b.numberFormat,
           invoiceNumberFormat: b.invoiceNumberFormat
+        }} />
+
+        {/* ─── Payment details (invoice "Pay to") ─────────────────── */}
+        <PaymentDetailsForm initialData={{
+          bankName: b.bankName ?? "",
+          bankAccountName: b.bankAccountName ?? "",
+          bankAccountNumber: b.bankAccountNumber ?? "",
         }} />
 
         {/* ─── Plan & Billing ───────────────────────────────────── */}

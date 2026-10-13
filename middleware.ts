@@ -8,6 +8,8 @@ const isPublicRoute = createRouteMatcher([
   "/r/(.*)",                  // public receipt views (Phase 4)
   "/api/webhooks/(.*)",        // Clerk / Stripe / Resend webhooks
   "/api/health",
+  // Dev-only template gallery (the page itself 404s in production).
+  ...(process.env.NODE_ENV !== "production" ? ["/dev/(.*)"] : []),
 ]);
 
 export default clerkMiddleware((auth, req) => {

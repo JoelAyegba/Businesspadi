@@ -1,11 +1,28 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
+// latin-ext carries ₦ (U+20A6) and ₵; with "latin" alone the naira sign
+// falls back to a system font mid-amount.
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Receipt/invoice template headings (lib/templates.ts). Same faces are
+// embedded in the PDF (lib/pdf/fonts.ts) so screen and paper match.
+const docSerif = Playfair_Display({
+  subsets: ["latin", "latin-ext"],
+  weight: ["600", "700"],
+  variable: "--font-doc-serif",
+  display: "swap",
+});
+const docMono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "700"],
+  variable: "--font-doc-mono",
   display: "swap",
 });
 
@@ -23,7 +40,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${docSerif.variable} ${docMono.variable}`} suppressHydrationWarning>
       <body className="font-sans" suppressHydrationWarning>
         <ClerkProvider
           appearance={{

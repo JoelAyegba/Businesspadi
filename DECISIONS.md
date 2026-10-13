@@ -6,6 +6,30 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 
 ---
 
+## 0008 — Templates as data: 4 layout families, one model, matching web + PDF
+
+**Date:** 2026-10-13 · **Phase:** 4 · **Status:** Accepted
+
+**Context.** The 10 templates were Tailwind class bundles over one shared layout, so they differed only in colour. The PDF had its own single design and ignored the chosen template. The PDF also used built-in Helvetica (WinAnsi encoding), which has no ₦ glyph, so every naira amount printed without its currency sign.
+
+**Decision.**
+- A template is data (`lib/templates.ts`): layout family (letterhead / banner / editorial / sidebar), heading font, and a hex palette.
+- `buildDocModel` (`lib/document-model.ts`) produces the display model. Two renderers consume it: the web layouts (`components/receipt/layouts`) and the react-pdf layouts (`lib/pdf/layouts`).
+- PDF fonts are embedded static TTFs (Inter, Playfair Display, JetBrains Mono; OFL).
+- Classic follows the business brand colour, darkened to ≥ 4.5:1 contrast on paper.
+
+**Alternatives considered.**
+- *Render HTML to PDF with headless Chrome.* This gives perfect parity, but it's heavy on serverless (cold starts, bundle size), and it's slow for our high-latency users.
+- *Keep separate designs.* This repeats the old drift.
+
+**Consequences.**
+- Every layout exists twice. Parity is protected by the shared model and palette, but layout code must be edited in both places.
+- Money must stay in Inter: the heading fonts lack ₦/₵.
+- Existing `templateId` values are kept.
+- Bank details (`Business.bank*`, migration `20261013120000_add_business_bank_details`) are snapshotted with branding so issued invoices keep their pay-to details.
+
+---
+
 ## 0007 — Paystack is the live v1 billing provider (supersedes 0003)
 
 **Date:** 2026-10-12 · **Phase:** 4 · **Status:** Accepted

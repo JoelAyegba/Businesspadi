@@ -15,6 +15,24 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Receipt/invoice paper palette — set per template as CSS variables on
+        // the document root (components/receipt/layouts/parts.tsx). Fixed
+        // colours: documents are paper and ignore the app's dark mode.
+        doc: {
+          paper: "var(--doc-paper)",
+          ink: "var(--doc-ink)",
+          muted: "var(--doc-muted)",
+          line: "var(--doc-line)",
+          accent: "var(--doc-accent)",
+          "accent-soft": "var(--doc-accent-soft)",
+          "accent-ink": "var(--doc-accent-ink)",
+          band: "var(--doc-band)",
+          "band-ink": "var(--doc-band-ink)",
+          "band-muted": "var(--doc-band-muted)",
+          "band-accent": "var(--doc-band-accent)",
+          paid: "var(--doc-paid)",
+          void: "var(--doc-void)",
+        },
         // Semantic tokens — wired to CSS variables defined in globals.css.
         // Do NOT use raw hex in components; reach for these instead.
         border: "hsl(var(--border))",
@@ -55,10 +73,14 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        // Document headings only (lib/templates.ts). These fonts lack the ₦
+        // glyph, so money always stays in sans.
+        "doc-serif": ["var(--font-doc-serif)", "Georgia", "serif"],
+        "doc-mono": ["var(--font-doc-mono)", "ui-monospace", "monospace"],
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/container-queries")],
 };
 
 export default config;
