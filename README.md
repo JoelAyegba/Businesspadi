@@ -1,4 +1,4 @@
-# ReceiptFlow
+# Businesspadi
 
 Cloud-based SaaS for issuing branded, professional receipts. Built for freelancers, SMEs, agencies, and accountants — primarily in the West African market.
 

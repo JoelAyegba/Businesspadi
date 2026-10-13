@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </svg>
           </div>
           <Link href="/app/dashboard" className="text-base font-semibold tracking-tight text-foreground">
-            ReceiptFlow
+            Businesspadi
           </Link>
         </div>
 
@@ -68,7 +68,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                   <path d="M5 6h6M5 8.5h4M5 11h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
-              <span className="text-base font-semibold tracking-tight text-foreground">ReceiptFlow</span>
+              <span className="text-base font-semibold tracking-tight text-foreground">Businesspadi</span>
             </Link>
 
             {/* Desktop: business name */}

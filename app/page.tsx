@@ -21,7 +21,7 @@ function Navbar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
             <Zap className="h-4 w-4 fill-current" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">ReceiptFlow</span>
+          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Businesspadi</span>
         </div>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-300">
@@ -53,7 +53,7 @@ function Hero() {
         <div className="max-w-2xl text-center lg:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/50 px-3 py-1 text-sm font-medium text-blue-600 dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-400 mb-6">
             <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-            ReceiptFlow 2.0 is now live
+            Businesspadi 2.0 is now live
           </div>
           <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-7xl mb-6 leading-[1.1]">
             Invoicing so fast, it feels like <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">magic.</span>
@@ -174,7 +174,7 @@ function Features() {
     {
       icon: Calculator,
       title: "Automated Tax & Math",
-      description: "Never miscalculate again. Set global or line-item tax rates, apply discounts, and let ReceiptFlow do the heavy lifting."
+      description: "Never miscalculate again. Set global or line-item tax rates, apply discounts, and let Businesspadi do the heavy lifting."
     }
   ];
 
@@ -311,7 +311,7 @@ function Pricing() {
             </div>
             <p className="text-slate-600 dark:text-slate-400 mb-8 h-12">For growing businesses that need volume and brand control.</p>
             <ul className="space-y-4 mb-8">
-              {['Unlimited documents', 'Premium custom templates', 'Remove ReceiptFlow branding', 'Priority support'].map((feature, i) => (
+              {['Unlimited documents', 'Premium custom templates', 'Remove Businesspadi branding', 'Priority support'].map((feature, i) => (
                 <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
                   <Check className="h-5 w-5 text-blue-600 shrink-0" /> {feature}
                 </li>
@@ -335,7 +335,7 @@ function Footer() {
               <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
                 <Zap className="h-3 w-3 fill-current" />
               </div>
-              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">ReceiptFlow</span>
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Businesspadi</span>
             </div>
             <p className="text-slate-500 text-sm max-w-xs mb-6">
               Making billing beautiful, simple, and lightning fast for modern professionals.
@@ -381,7 +381,7 @@ function Footer() {
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-800/60 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-slate-500">© {new Date().getFullYear()} ReceiptFlow Inc. All rights reserved.</p>
+          <p className="text-sm text-slate-500">© {new Date().getFullYear()} Businesspadi Inc. All rights reserved.</p>
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <Lock className="h-4 w-4" /> Secure SSL Encryption
           </div>

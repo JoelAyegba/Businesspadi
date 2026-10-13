@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-ReceiptFlow — Next.js 14 (App Router) SaaS for branded receipts and invoices, targeted at the West African market. Built through Phase 4: receipts, invoices, clients, products, onboarding, PDF, public share links, email delivery, and Paystack billing.
+Businesspadi — Next.js 14 (App Router) SaaS for branded receipts and invoices, targeted at the West African market. Built through Phase 4: receipts, invoices, clients, products, onboarding, PDF, public share links, email delivery, and Paystack billing.
 
 The repo lives inside `receiptflow/`; the parent folder also contains `ReceiptFlow_Implementation_Plan.docx`, the multi-phase build plan that sequences future work.
 

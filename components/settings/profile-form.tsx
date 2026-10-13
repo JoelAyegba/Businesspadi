@@ -75,7 +75,7 @@ export function ProfileForm({ initialData }: ProfileProps) {
           <Label htmlFor="settingsSlug">URL slug</Label>
           <Input id="settingsSlug" value={data.slug} onChange={e => setData(d => ({ ...d, slug: e.target.value }))} />
           <p className="text-xs text-muted-foreground">
-            Used in shareable receipt links: <span className="font-mono text-foreground/70">receiptflow.co/{data.slug}</span>
+            Used in downloaded PDF file names, e.g. <span className="font-mono text-foreground/70">{data.slug}-RCPT-0001.pdf</span>
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

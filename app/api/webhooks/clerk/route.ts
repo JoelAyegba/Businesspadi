@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { ensureUserAndBusiness } from "@/lib/auth";
 
 /**
- * Clerk → ReceiptFlow sync.
+ * Clerk → Businesspadi sync.
  *
  * On user.created: create a User row + a default Business (the user is the
  * Owner via Membership). This is the single place where new tenants come into

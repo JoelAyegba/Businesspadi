@@ -50,7 +50,7 @@ export default async function PublicReceiptPage({
           </a>
         </div>
         <footer className="pt-2 text-center text-xs text-muted-foreground">
-          Powered by <span className="font-medium text-foreground">ReceiptFlow</span>
+          Powered by <span className="font-medium text-foreground">Businesspadi</span>
         </footer>
       </div>
     </main>

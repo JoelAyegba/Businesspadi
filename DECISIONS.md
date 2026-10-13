@@ -22,7 +22,7 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 
 **Date:** 2026-07-16 · **Phase:** 3 · **Status:** Accepted
 
-**Context.** ReceiptFlow needed to generate **invoices** (requests for payment) in addition to receipts (proof of payment). The two share ~90% of their structure — line items, client, branding snapshot, tax/discount, totals, numbering, and the visual document. Options: (a) a separate `Invoice`/`InvoiceLineItem` model, or (b) a `documentType` discriminator on the existing `Receipt` table.
+**Context.** Businesspadi needed to generate **invoices** (requests for payment) in addition to receipts (proof of payment). The two share ~90% of their structure — line items, client, branding snapshot, tax/discount, totals, numbering, and the visual document. Options: (a) a separate `Invoice`/`InvoiceLineItem` model, or (b) a `documentType` discriminator on the existing `Receipt` table.
 
 **Decision.** Option (b). `Receipt.documentType` (`RECEIPT` | `INVOICE`, default `RECEIPT`) discriminates the row. Invoices add `dueDate` + `paymentTerms`. Marking an issued invoice **paid generates a linked receipt** (`Receipt.sourceInvoiceId`, unique self-relation), reusing the invoice's frozen `businessSnapshot` and copying its money fields + line items. Numbering is per-`(businessId, type, year)` with an independent format (`Business.invoiceNumberFormat`, default `INV-{YYYY}-{NNNN}`), so the INV and RCPT series never collide (`@@unique([businessId, documentType, number])`).
 

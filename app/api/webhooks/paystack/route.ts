@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 /**
- * Paystack → ReceiptFlow subscription state.
+ * Paystack → Businesspadi subscription state.
  *
  * Flow: checkout (lib/billing/paystack.ts) passes `metadata.businessId`.
  *   charge.success        → mark Pro, store paystackCustomerCode

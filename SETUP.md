@@ -11,14 +11,14 @@ The code in this repo is fully written, but it needs API keys from seven service
 1. Create a new GitHub repository (private to start) and push this code to it.
 2. Sign up at [vercel.com](https://vercel.com) and import the repo.
 3. In the Vercel project: **Settings → Environment Variables** — leave empty for now, you'll add keys per service below.
-4. Note the deployed URL (e.g. `receiptflow-xyz.vercel.app`). You'll use it for webhook URLs.
+4. Note the deployed URL (e.g. `businesspadi-xyz.vercel.app`). You'll use it for webhook URLs.
 
 ---
 
 ## 2. Neon Postgres (5 min)
 
 1. Sign up at [neon.tech](https://neon.tech) (free tier is plenty for v1).
-2. Create a project named `receiptflow`.
+2. Create a project named `businesspadi`.
 3. Create two branches: `main` (production) and `dev`.
 4. From each branch, copy:
    - **Pooled** connection string → `DATABASE_URL`
@@ -37,7 +37,7 @@ npx prisma migrate dev --name init
 ## 3. Clerk (10 min)
 
 1. Sign up at [clerk.com](https://clerk.com).
-2. Create application `ReceiptFlow`. Enable: Email/password + Google OAuth. Disable everything else for v1.
+2. Create application `Businesspadi`. Enable: Email/password + Google OAuth. Disable everything else for v1.
 3. From **API Keys**:
    - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
    - `CLERK_SECRET_KEY`
@@ -64,7 +64,7 @@ npx prisma migrate dev --name init
 3. **Settings → Upload → Upload presets** → Add new:
    - Name: `logos`
    - Mode: **Signed**
-   - Folder: `receiptflow/logos`
+   - Folder: `businesspadi/logos`
    - Allowed formats: png, jpg, webp, svg
    - Max file size: 2 MB
    - Eager transformation: `c_fill,w_400,h_400,f_auto`
@@ -76,9 +76,9 @@ npx prisma migrate dev --name init
 
 1. Sign up at [resend.com](https://resend.com).
 2. **API Keys** → Create → `RESEND_API_KEY`
-3. **Domains** → Add Domain (e.g. `mail.receiptflow.app`).
+3. **Domains** → Add Domain (e.g. `mail.businesspadi.app`).
 4. Add the four DNS records Resend gives you (SPF, DKIM x2, DMARC) at your DNS provider. **Wait for verified status** — this can take minutes to hours.
-5. Set `RESEND_FROM` to e.g. `ReceiptFlow <noreply@mail.receiptflow.app>`.
+5. Set `RESEND_FROM` to e.g. `Businesspadi <noreply@mail.businesspadi.app>`.
 6. **Webhooks** → Add `https://YOUR-VERCEL-URL/api/webhooks/resend`. (Phase 4 will start consuming these events.)
 
 ---
@@ -89,7 +89,7 @@ npx prisma migrate dev --name init
 2. **Developers → API keys**:
    - `STRIPE_SECRET_KEY` (test mode)
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (test mode)
-3. **Products → Add product** → "ReceiptFlow Pro", $9.00/month recurring.
+3. **Products → Add product** → "Businesspadi Pro", $9.00/month recurring.
    - Copy the **Price ID** (starts with `price_…`) → `STRIPE_PRO_PRICE_ID`
 4. **Developers → Webhooks → Add endpoint**:
    - URL: `https://YOUR-VERCEL-URL/api/webhooks/billing`

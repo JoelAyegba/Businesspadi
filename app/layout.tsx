@@ -11,8 +11,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "ReceiptFlow — Beautiful receipts in seconds",
-    template: "%s | ReceiptFlow",
+    default: "Businesspadi — Beautiful receipts in seconds",
+    template: "%s | Businesspadi",
   },
   description:
     "Create, manage, and deliver professional receipts to your clients. Built for freelancers, SMEs, and agencies.",

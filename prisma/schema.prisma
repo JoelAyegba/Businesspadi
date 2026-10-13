@@ -1,4 +1,4 @@
-// Prisma schema for ReceiptFlow.
+// Prisma schema for Businesspadi.
 // Multi-tenant: every business-owned row carries businessId and is scoped
 // in queries via getServerContext() (lib/auth.ts). NEVER query without it.
 
