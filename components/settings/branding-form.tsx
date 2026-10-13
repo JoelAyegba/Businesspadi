@@ -59,6 +59,7 @@ export function BrandingForm({ initialColor, initialLogoUrl }: { initialColor: s
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
           {logoUrl ? (
             <div className="relative group flex h-24 w-24 shrink-0 items-center justify-center rounded-xl border border-border bg-surface/50">
+              {/* eslint-disable-next-line @next/next/no-img-element -- data-URL preview; next/image can't optimise it */}
               <img src={logoUrl} alt="Logo" className="max-h-full max-w-full rounded-lg object-contain p-2" />
               <button
                 type="button"

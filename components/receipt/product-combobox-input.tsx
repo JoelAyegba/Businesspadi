@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Package, Search, Check, ChevronDown } from "lucide-react";
+import { Package, ChevronDown } from "lucide-react";
 import type { ProductRow } from "@/lib/queries/products";
 
 type Props = {

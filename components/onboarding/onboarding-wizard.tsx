@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import {
   Building2,
-  MapPin,
   Phone,
   Mail,
   FileText,

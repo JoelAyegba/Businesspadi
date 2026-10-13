@@ -105,6 +105,7 @@ export function ProfileForm({ initialData }: ProfileProps) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             {data.signatureUrl ? (
               <div className="rounded-xl border border-border/60 bg-surface/30 p-3 relative group">
+                {/* eslint-disable-next-line @next/next/no-img-element -- data-URL preview; next/image can't optimise it */}
                 <img src={data.signatureUrl} alt="Business signature" className="h-16 w-auto dark:invert" />
                 <button
                   type="button"

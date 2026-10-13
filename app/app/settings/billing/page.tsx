@@ -1,5 +1,4 @@
 import { requireBusinessContext } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import { getFreeTierUsage } from "@/lib/billing/limits";
 import { upgradeToProAction, createBillingPortalAction } from "@/app/app/billing/actions";
 import { Button } from "@/components/ui/button";

@@ -4,7 +4,6 @@ import { UserButton } from "@clerk/nextjs";
 import { getServerContext } from "@/lib/auth";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
-import { hexToHsl } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { Suspense } from "react";

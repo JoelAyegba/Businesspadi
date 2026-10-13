@@ -9,13 +9,11 @@ import {
   Trash2,
   ToggleLeft,
   ToggleRight,
-  X,
   Check,
   Loader2,
   Tag,
   DollarSign,
   Archive,
-  Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

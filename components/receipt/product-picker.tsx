@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Package, Search, ChevronDown, X, Plus } from "lucide-react";
+import { Package, Search, ChevronDown, X } from "lucide-react";
 import { formatMoney } from "@/lib/utils";
 import type { ProductRow } from "@/lib/queries/products";
 

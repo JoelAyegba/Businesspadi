@@ -60,6 +60,7 @@ export function Logo({
 }) {
   const src = pdfImageSrc(model.business.logoUrl);
   if (!src) return null;
+  // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf <Image> has no alt prop (PDF, not HTML)
   const img = <Image src={src} style={{ height, maxWidth: 140, objectFit: "contain" }} />;
   if (!onBand) return img;
   return (
@@ -415,6 +416,7 @@ export function DocFooter({ model, showTaxId = true }: { model: DocModel; showTa
               model.darkPaper ? { backgroundColor: "#FFFFFF", borderRadius: 3, padding: 3 } : {}
             }
           >
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf <Image> has no alt prop */}
             <Image
               src={signature}
               style={{ height: 34, objectFit: "contain", objectPosition: "left" }}

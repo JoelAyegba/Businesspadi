@@ -9,7 +9,7 @@
  * the same shape it sees from lib/mock. That keeps the UI swap zero-cost.
  */
 import { unstable_cache } from "next/cache";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { DocumentType, MockReceipt, ReceiptStatus } from "@/lib/mock";
 

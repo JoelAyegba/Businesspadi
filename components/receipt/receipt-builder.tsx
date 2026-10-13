@@ -6,15 +6,12 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Plus,
-  Trash2,
   Eye,
   EyeOff,
   Download,
   Send,
   Link2,
   Save,
-  Mail,
-  ChevronDown,
   Loader2,
   AlertCircle,
 } from "lucide-react";
@@ -29,7 +26,8 @@ import { EmailSendButton } from "@/components/receipt/email-send-button";
 import { ClientCombobox } from "@/components/receipt/client-combobox";
 import { SortableLineItem, type LineItemDraft } from "@/components/receipt/sortable-line-item";
 import { ProductPicker } from "@/components/receipt/product-picker";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { DocumentType, MockReceipt, MockBusiness, MockClient } from "@/lib/mock";
 import type { ProductRow } from "@/lib/queries/products";
@@ -164,6 +162,9 @@ export function ReceiptBuilder({
       taxRate: totals.effectiveTaxRate,
       taxTotal: totals.taxTotal,
       total: totals.total,
+      discountValue: totals.discountAmt,
+      notes: notes.trim() || null,
+      templateId,
       client: client ? { id: client.id, name: client.name, email: client.email, phone: client.phone } : null,
       lineItems: lines.map((li, i) => ({
         id: li.id,
@@ -173,7 +174,7 @@ export function ReceiptBuilder({
         subtotal: totals.itemSubtotals[i] ?? 0,
       })),
     };
-  }, [clientId, newClientName, newClientEmail, newClientPhone, business.id, clients, issueDate, currency, lines, taxRate, totals, documentType, dueDate, paymentTerms]);
+  }, [clientId, newClientName, newClientEmail, newClientPhone, business.id, clients, issueDate, currency, lines, totals, documentType, dueDate, paymentTerms, notes, templateId]);
 
   const updateLine = (id: string, patch: Partial<LineItemDraft>) =>
     setLines((prev) => prev.map((li) => (li.id === id ? { ...li, ...patch } : li)));
@@ -212,6 +213,12 @@ export function ReceiptBuilder({
 
   useEffect(() => {
     if (!initialReceipt) return;
+    // A new client is created by updateReceipt whenever clientName is sent, so
+    // autosaving mid-typing would create a duplicate client per autosave.
+    // Wait for the explicit Save, which creates it exactly once.
+    const enteringNewClient =
+      clientId === "NEW" || (clientId === "" && Boolean(newClientPhone.trim() || newClientName.trim()));
+    if (enteringNewClient) return;
 
     const handler = setTimeout(async () => {
       setIsAutosaving(true);
@@ -245,7 +252,7 @@ export function ReceiptBuilder({
     }, 2000);
 
     return () => clearTimeout(handler);
-  }, [initialReceipt, documentType, issueDate, dueDate, paymentTerms, clientId, newClientName, newClientEmail, newClientPhone, currency, taxRate, discount, notes, templateId, lines]);
+  }, [initialReceipt, documentType, issueDate, dueDate, paymentTerms, clientId, newClientName, newClientEmail, newClientPhone, currency, taxRate, taxEnabled, discount, notes, templateId, lines]);
 
   const submit = (status: "DRAFT" | "ISSUED") => {
     setError(null);

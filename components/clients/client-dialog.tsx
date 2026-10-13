@@ -101,6 +101,7 @@ export function ClientDialog({ client, trigger, open: controlledOpen, onOpenChan
 
             if (setOpen) setOpen(false);
         } catch (err) {
+            console.error("Failed to save client:", err);
             setError("An unexpected error occurred");
         } finally {
             setIsSubmitting(false);
