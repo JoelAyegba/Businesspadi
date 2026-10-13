@@ -101,6 +101,6 @@ A receipt/invoice is rendered twice, from one source: `buildDocModel` ([lib/docu
 
 - Trunk-based; short-lived branches off `main`.
 - **Migration PRs reviewed extra carefully; never merged Friday afternoon.**
-- Engines: Node ≥ 20.
+- Engines: Node ≥ 22 (CI runs 22 LTS).
 - TypeScript strict; don't loosen `tsconfig.json` to silence errors.
 - Decisions worth recording (architecture, library choices, trade-offs) get a new entry at the top of [DECISIONS.md](DECISIONS.md), ADR-style.
