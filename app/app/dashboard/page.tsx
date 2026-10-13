@@ -10,7 +10,7 @@ import { RecentSection } from "./_components/recent-section";
 
 function KpiSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <Skeleton key={i} className="h-28 rounded-xl" />
       ))}
@@ -52,9 +52,7 @@ export default async function DashboardPage() {
       {/* ─── Header — renders immediately ────────────────────────────── */}
       <header className="animate-fade-in flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">
-            {greeting()}
-          </p>
+          <p className="text-sm font-medium text-muted-foreground">{greeting()}</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-[32px] sm:leading-tight">
             {business.name}
           </h1>
@@ -83,15 +81,17 @@ export default async function DashboardPage() {
 
       <section className="animate-fade-in-delay-2 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Link href="/app/receipts/new" className="group">
-          <Card className="h-full border-slate-200/60 dark:border-slate-800 transition-all duration-500 hover:border-blue-500/40 hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)] dark:hover:border-blue-500/30">
+          <Card className="h-full border-slate-200/60 transition-all duration-500 hover:border-blue-500/40 hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)] dark:border-slate-800 dark:hover:border-blue-500/30">
             <CardContent className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-6">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] transition-transform duration-500 group-hover:scale-110">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] transition-transform duration-500 group-hover:scale-110 sm:h-12 sm:w-12">
                 <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Create receipt</p>
-                  <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 text-blue-600 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white sm:text-base">
+                    Create receipt
+                  </p>
+                  <ArrowUpRight className="h-3 w-3 shrink-0 text-blue-600 opacity-0 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100 sm:h-4 sm:w-4" />
                 </div>
               </div>
             </CardContent>
@@ -99,16 +99,18 @@ export default async function DashboardPage() {
         </Link>
 
         <Link href="/app/invoices/new" className="group">
-          <Card className="h-full border-slate-200/60 dark:border-slate-800 transition-all duration-500 hover:border-violet-500/40 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.15)] dark:hover:border-violet-500/30">
-            <CardContent className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 bg-violet-500/5 blur-3xl rounded-full w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 transition-transform duration-500 group-hover:scale-110">
+          <Card className="h-full border-slate-200/60 transition-all duration-500 hover:border-violet-500/40 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.15)] dark:border-slate-800 dark:hover:border-violet-500/30">
+            <CardContent className="relative flex flex-col gap-3 overflow-hidden p-4 sm:gap-4 sm:p-6">
+              <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-violet-500/5 p-8 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 transition-transform duration-500 group-hover:scale-110 dark:bg-violet-500/20 dark:text-violet-400 sm:h-12 sm:w-12">
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <div className="min-w-0 flex-1 relative z-10">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Create invoice</p>
-                  <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 text-violet-600 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <div className="relative z-10 min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white sm:text-base">
+                    Create invoice
+                  </p>
+                  <ArrowUpRight className="h-3 w-3 shrink-0 text-violet-600 opacity-0 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100 sm:h-4 sm:w-4" />
                 </div>
               </div>
             </CardContent>
@@ -116,16 +118,18 @@ export default async function DashboardPage() {
         </Link>
 
         <Link href="/app/products" className="group">
-          <Card className="h-full border-slate-200/60 dark:border-slate-800 transition-all duration-500 hover:border-emerald-500/40 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)] dark:hover:border-emerald-500/30">
-            <CardContent className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 bg-emerald-500/5 blur-3xl rounded-full w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 transition-transform duration-500 group-hover:scale-110">
+          <Card className="h-full border-slate-200/60 transition-all duration-500 hover:border-emerald-500/40 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)] dark:border-slate-800 dark:hover:border-emerald-500/30">
+            <CardContent className="relative flex flex-col gap-3 overflow-hidden p-4 sm:gap-4 sm:p-6">
+              <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-emerald-500/5 p-8 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 transition-transform duration-500 group-hover:scale-110 dark:bg-emerald-500/20 dark:text-emerald-400 sm:h-12 sm:w-12">
                 <Package className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <div className="min-w-0 flex-1 relative z-10">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Add products</p>
-                  <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 text-emerald-600 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <div className="relative z-10 min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white sm:text-base">
+                    Add products
+                  </p>
+                  <ArrowUpRight className="h-3 w-3 shrink-0 text-emerald-600 opacity-0 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100 sm:h-4 sm:w-4" />
                 </div>
               </div>
             </CardContent>
@@ -133,15 +137,17 @@ export default async function DashboardPage() {
         </Link>
 
         <Link href="/app/settings" className="group">
-          <Card className="h-full border-slate-200/60 dark:border-slate-800 transition-all duration-500 hover:border-slate-500/40 hover:shadow-[0_20px_40px_-15px_rgba(100,116,139,0.15)] dark:hover:border-slate-500/30">
+          <Card className="h-full border-slate-200/60 transition-all duration-500 hover:border-slate-500/40 hover:shadow-[0_20px_40px_-15px_rgba(100,116,139,0.15)] dark:border-slate-800 dark:hover:border-slate-500/30">
             <CardContent className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-6">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 transition-transform duration-500 group-hover:scale-110">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 transition-transform duration-500 group-hover:scale-110 dark:bg-slate-800 dark:text-slate-300 sm:h-12 sm:w-12">
                 <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Business settings</p>
-                  <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 text-slate-600 dark:text-slate-400 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white sm:text-base">
+                    Business settings
+                  </p>
+                  <ArrowUpRight className="h-3 w-3 shrink-0 text-slate-600 opacity-0 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100 dark:text-slate-400 sm:h-4 sm:w-4" />
                 </div>
               </div>
             </CardContent>

@@ -25,13 +25,13 @@ type Props = {
   className?: string;
 };
 
-export function EmailSendButton({ 
-  receiptId, 
-  defaultEmail, 
-  status, 
-  variant = "outline", 
+export function EmailSendButton({
+  receiptId,
+  defaultEmail,
+  status,
+  variant = "outline",
   iconType = "send",
-  className 
+  className,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(defaultEmail || "");
@@ -47,7 +47,7 @@ export function EmailSendButton({
 
     setError(null);
     setSuccess(false);
-    
+
     startTransition(async () => {
       const result = await sendReceiptEmail(receiptId, email);
       if (!result.ok) {
@@ -106,8 +106,10 @@ export function EmailSendButton({
               />
             </div>
           </div>
-          {error && <p className="text-sm font-medium text-destructive mb-4">{error}</p>}
-          {success && <p className="text-sm font-medium text-emerald-600 mb-4">Email sent successfully!</p>}
+          {error && <p className="mb-4 text-sm font-medium text-destructive">{error}</p>}
+          {success && (
+            <p className="mb-4 text-sm font-medium text-emerald-600">Email sent successfully!</p>
+          )}
           <DialogFooter className="sm:justify-end">
             <Button
               type="button"

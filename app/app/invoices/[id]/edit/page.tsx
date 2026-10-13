@@ -7,11 +7,7 @@ import { listActiveProducts } from "@/lib/queries/products";
 import { prisma } from "@/lib/db";
 import type { MockBusiness } from "@/lib/mock";
 
-export default async function EditInvoicePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditInvoicePage({ params }: { params: { id: string } }) {
   const { business } = await requireBusinessContext();
 
   const [invoice, clients, products, biz] = await Promise.all([

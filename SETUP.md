@@ -28,6 +28,7 @@ The code in this repo is fully written, but it needs API keys from seven service
 6. Install the [Vercel ↔ Neon integration](https://vercel.com/integrations/neon) so each PR preview deploy gets its own ephemeral DB branch automatically.
 
 Test it works:
+
 ```bash
 npx prisma migrate dev --name init
 ```

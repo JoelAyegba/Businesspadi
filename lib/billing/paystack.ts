@@ -18,7 +18,7 @@ export const paystackProvider: BillingProvider = {
       },
       body: JSON.stringify({
         email: input.customerEmail,
-        amount: 300000, /* 3,000 NGN or equivalent dummy amount, the Plan actually overrides this */
+        amount: 300000 /* 3,000 NGN or equivalent dummy amount, the Plan actually overrides this */,
         plan: planCode,
         callback_url: input.successUrl,
         metadata: {
@@ -43,12 +43,15 @@ export const paystackProvider: BillingProvider = {
     if (!secretKey) throw new Error("PAYSTACK_SECRET_KEY not set");
 
     // For Paystack, the input.customerId will be the paystackSubscriptionCode
-    const response = await fetch(`https://api.paystack.co/subscription/${input.customerId}/manage/link`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
+    const response = await fetch(
+      `https://api.paystack.co/subscription/${input.customerId}/manage/link`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       throw new Error("Failed to generate Paystack manage subscription link");

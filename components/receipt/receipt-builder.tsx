@@ -27,15 +27,37 @@ import { ClientCombobox } from "@/components/receipt/client-combobox";
 import { SortableLineItem, type LineItemDraft } from "@/components/receipt/sortable-line-item";
 import { ProductPicker } from "@/components/receipt/product-picker";
 import type { DragEndEvent } from "@dnd-kit/core";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import type { DocumentType, MockReceipt, MockBusiness, MockClient } from "@/lib/mock";
 import type { ProductRow } from "@/lib/queries/products";
 import { cn, formatMoney } from "@/lib/utils";
 import { saveReceipt, updateReceipt } from "@/app/app/receipts/actions";
 
 /** User-facing copy that differs between receipts and invoices. */
-const DOC_COPY: Record<DocumentType, { noun: string; listName: string; basePath: string; issueCta: string; detailsHint: string; lineItemsHint: string }> = {
+const DOC_COPY: Record<
+  DocumentType,
+  {
+    noun: string;
+    listName: string;
+    basePath: string;
+    issueCta: string;
+    detailsHint: string;
+    lineItemsHint: string;
+  }
+> = {
   RECEIPT: {
     noun: "receipt",
     listName: "All receipts",
@@ -103,7 +125,9 @@ export function ReceiptBuilder({
   const [issueDate, setIssueDate] = useState(initialReceipt?.issueDate ?? today());
   const [dueDate, setDueDate] = useState(initialReceipt?.dueDate ?? "");
   const [paymentTerms, setPaymentTerms] = useState(initialReceipt?.paymentTerms ?? "");
-  const [clientId, setClientId] = useState<string>(initialReceipt?.clientId ?? defaultClientId ?? "");
+  const [clientId, setClientId] = useState<string>(
+    initialReceipt?.clientId ?? defaultClientId ?? "",
+  );
   const [newClientName, setNewClientName] = useState("");
   const [newClientEmail, setNewClientEmail] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
@@ -115,12 +139,12 @@ export function ReceiptBuilder({
   const [lines, setLines] = useState<LineItemDraft[]>(
     initialReceipt?.lineItems?.length
       ? initialReceipt.lineItems.map((li) => ({
-        id: li.id,
-        description: li.description,
-        quantity: li.quantity.toString(),
-        unitPrice: li.unitPrice.toString(),
-      }))
-      : [blankLine()]
+          id: li.id,
+          description: li.description,
+          quantity: li.quantity.toString(),
+          unitPrice: li.unitPrice.toString(),
+        }))
+      : [blankLine()],
   );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -141,14 +165,25 @@ export function ReceiptBuilder({
   }, [lines, discount, taxRate, taxEnabled]);
 
   const previewReceipt: MockReceipt = useMemo(() => {
-    const client = clientId === "NEW" || (clientId === "" && (newClientPhone.trim() || newClientName.trim()))
-      ? { id: "new", name: clientId === "NEW" ? (newClientName || "New Client") : (newClientName.trim() || "Walk-in Customer"), email: newClientEmail || null, phone: newClientPhone || null }
-      : (clientId ? clients.find((c) => c.id === clientId) : null);
+    const client =
+      clientId === "NEW" || (clientId === "" && (newClientPhone.trim() || newClientName.trim()))
+        ? {
+            id: "new",
+            name:
+              clientId === "NEW"
+                ? newClientName || "New Client"
+                : newClientName.trim() || "Walk-in Customer",
+            email: newClientEmail || null,
+            phone: newClientPhone || null,
+          }
+        : clientId
+          ? clients.find((c) => c.id === clientId)
+          : null;
 
     return {
       id: "preview",
       businessId: business.id,
-      clientId: clientId === "NEW" ? null : (clientId || null),
+      clientId: clientId === "NEW" ? null : clientId || null,
       // Real number is assigned by the server on save; show a placeholder.
       number: "—",
       documentType,
@@ -165,7 +200,9 @@ export function ReceiptBuilder({
       discountValue: totals.discountAmt,
       notes: notes.trim() || null,
       templateId,
-      client: client ? { id: client.id, name: client.name, email: client.email, phone: client.phone } : null,
+      client: client
+        ? { id: client.id, name: client.name, email: client.email, phone: client.phone }
+        : null,
       lineItems: lines.map((li, i) => ({
         id: li.id,
         description: li.description || "Line item",
@@ -174,7 +211,23 @@ export function ReceiptBuilder({
         subtotal: totals.itemSubtotals[i] ?? 0,
       })),
     };
-  }, [clientId, newClientName, newClientEmail, newClientPhone, business.id, clients, issueDate, currency, lines, totals, documentType, dueDate, paymentTerms, notes, templateId]);
+  }, [
+    clientId,
+    newClientName,
+    newClientEmail,
+    newClientPhone,
+    business.id,
+    clients,
+    issueDate,
+    currency,
+    lines,
+    totals,
+    documentType,
+    dueDate,
+    paymentTerms,
+    notes,
+    templateId,
+  ]);
 
   const updateLine = (id: string, patch: Partial<LineItemDraft>) =>
     setLines((prev) => prev.map((li) => (li.id === id ? { ...li, ...patch } : li)));
@@ -197,7 +250,7 @@ export function ReceiptBuilder({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -217,7 +270,8 @@ export function ReceiptBuilder({
     // autosaving mid-typing would create a duplicate client per autosave.
     // Wait for the explicit Save, which creates it exactly once.
     const enteringNewClient =
-      clientId === "NEW" || (clientId === "" && Boolean(newClientPhone.trim() || newClientName.trim()));
+      clientId === "NEW" ||
+      (clientId === "" && Boolean(newClientPhone.trim() || newClientName.trim()));
     if (enteringNewClient) return;
 
     const handler = setTimeout(async () => {
@@ -227,10 +281,19 @@ export function ReceiptBuilder({
         issueDate,
         dueDate: dueDate || null,
         paymentTerms: paymentTerms.trim() || null,
-        clientId: (clientId === "NEW" || (clientId === "" && (newClientPhone.trim() || newClientName.trim()))) ? null : (clientId || null),
-        clientName: clientId === "NEW" ? newClientName.trim() : (clientId === "" && (newClientPhone.trim() || newClientName.trim()) ? (newClientName.trim() || "Walk-in Customer") : undefined),
-        clientEmail: clientId === "NEW" ? (newClientEmail.trim() || undefined) : undefined,
-        clientPhone: (clientId === "NEW" || clientId === "") ? (newClientPhone.trim() || undefined) : undefined,
+        clientId:
+          clientId === "NEW" || (clientId === "" && (newClientPhone.trim() || newClientName.trim()))
+            ? null
+            : clientId || null,
+        clientName:
+          clientId === "NEW"
+            ? newClientName.trim()
+            : clientId === "" && (newClientPhone.trim() || newClientName.trim())
+              ? newClientName.trim() || "Walk-in Customer"
+              : undefined,
+        clientEmail: clientId === "NEW" ? newClientEmail.trim() || undefined : undefined,
+        clientPhone:
+          clientId === "NEW" || clientId === "" ? newClientPhone.trim() || undefined : undefined,
         currency,
         taxRate: taxEnabled ? toNumber(taxRate) : 0,
         discount: toNumber(discount),
@@ -252,7 +315,24 @@ export function ReceiptBuilder({
     }, 2000);
 
     return () => clearTimeout(handler);
-  }, [initialReceipt, documentType, issueDate, dueDate, paymentTerms, clientId, newClientName, newClientEmail, newClientPhone, currency, taxRate, taxEnabled, discount, notes, templateId, lines]);
+  }, [
+    initialReceipt,
+    documentType,
+    issueDate,
+    dueDate,
+    paymentTerms,
+    clientId,
+    newClientName,
+    newClientEmail,
+    newClientPhone,
+    currency,
+    taxRate,
+    taxEnabled,
+    discount,
+    notes,
+    templateId,
+    lines,
+  ]);
 
   const submit = (status: "DRAFT" | "ISSUED") => {
     setError(null);
@@ -263,10 +343,19 @@ export function ReceiptBuilder({
         issueDate,
         dueDate: dueDate || null,
         paymentTerms: paymentTerms.trim() || null,
-        clientId: (clientId === "NEW" || (clientId === "" && (newClientPhone.trim() || newClientName.trim()))) ? null : (clientId || null),
-        clientName: clientId === "NEW" ? newClientName.trim() : (clientId === "" && (newClientPhone.trim() || newClientName.trim()) ? (newClientName.trim() || "Walk-in Customer") : undefined),
-        clientEmail: clientId === "NEW" ? (newClientEmail.trim() || undefined) : undefined,
-        clientPhone: (clientId === "NEW" || clientId === "") ? (newClientPhone.trim() || undefined) : undefined,
+        clientId:
+          clientId === "NEW" || (clientId === "" && (newClientPhone.trim() || newClientName.trim()))
+            ? null
+            : clientId || null,
+        clientName:
+          clientId === "NEW"
+            ? newClientName.trim()
+            : clientId === "" && (newClientPhone.trim() || newClientName.trim())
+              ? newClientName.trim() || "Walk-in Customer"
+              : undefined,
+        clientEmail: clientId === "NEW" ? newClientEmail.trim() || undefined : undefined,
+        clientPhone:
+          clientId === "NEW" || clientId === "" ? newClientPhone.trim() || undefined : undefined,
         currency,
         taxRate: taxEnabled ? toNumber(taxRate) : 0,
         discount: toNumber(discount),
@@ -328,7 +417,11 @@ export function ReceiptBuilder({
 
       {/* ─── Template Selector ──────────────────────────────────────── */}
       <div className="animate-fade-in flex flex-col gap-4">
-        <TemplateSelector value={templateId} onChange={setTemplateId} brandColor={business.brandColor} />
+        <TemplateSelector
+          value={templateId}
+          onChange={setTemplateId}
+          brandColor={business.brandColor}
+        />
 
         {/* Mobile Preview Toggle Button */}
         <button
@@ -354,7 +447,9 @@ export function ReceiptBuilder({
                 </span>
                 Details
               </CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">{copy.detailsHint}</CardDescription>
+              <CardDescription className="text-slate-500 dark:text-slate-400">
+                {copy.detailsHint}
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
@@ -463,34 +558,46 @@ export function ReceiptBuilder({
                       placeholder="+1 (555) 000-0000"
                     />
                   </div>
-                  <p className="text-[11px] text-muted-foreground">If provided, this walk-in customer will be saved to your contacts.</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    If provided, this walk-in customer will be saved to your contacts.
+                  </p>
                 </div>
               )}
 
-              {clientId && clientId !== "NEW" && (() => {
-                const selectedClient = clients.find(c => c.id === clientId);
-                if (!selectedClient) return null;
-                return (
-                  <div className="sm:col-span-2 grid gap-4 sm:grid-cols-2 animate-in fade-in rounded-xl border border-border/50 bg-muted/10 p-4">
-                    <div className="flex flex-col gap-1.5">
-                      <Label>Client Name</Label>
-                      <Input value={selectedClient.name} disabled className="bg-background/50" />
+              {clientId &&
+                clientId !== "NEW" &&
+                (() => {
+                  const selectedClient = clients.find((c) => c.id === clientId);
+                  if (!selectedClient) return null;
+                  return (
+                    <div className="grid gap-4 rounded-xl border border-border/50 bg-muted/10 p-4 animate-in fade-in sm:col-span-2 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <Label>Client Name</Label>
+                        <Input value={selectedClient.name} disabled className="bg-background/50" />
+                      </div>
+                      {selectedClient.email && (
+                        <div className="flex flex-col gap-1.5">
+                          <Label>Client Email</Label>
+                          <Input
+                            value={selectedClient.email}
+                            disabled
+                            className="bg-background/50"
+                          />
+                        </div>
+                      )}
+                      {selectedClient.phone && (
+                        <div className="flex flex-col gap-1.5">
+                          <Label>Client Phone</Label>
+                          <Input
+                            value={selectedClient.phone}
+                            disabled
+                            className="bg-background/50"
+                          />
+                        </div>
+                      )}
                     </div>
-                    {selectedClient.email && (
-                      <div className="flex flex-col gap-1.5">
-                        <Label>Client Email</Label>
-                        <Input value={selectedClient.email} disabled className="bg-background/50" />
-                      </div>
-                    )}
-                    {selectedClient.phone && (
-                      <div className="flex flex-col gap-1.5">
-                        <Label>Client Phone</Label>
-                        <Input value={selectedClient.phone} disabled className="bg-background/50" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
+                  );
+                })()}
             </CardContent>
           </Card>
 
@@ -503,7 +610,9 @@ export function ReceiptBuilder({
                 </span>
                 Line items
               </CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">{copy.lineItemsHint}</CardDescription>
+              <CardDescription className="text-slate-500 dark:text-slate-400">
+                {copy.lineItemsHint}
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <DndContext
@@ -512,7 +621,7 @@ export function ReceiptBuilder({
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={lines.map(li => li.id)}
+                  items={lines.map((li) => li.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   {lines.map((li, i) => (
@@ -563,14 +672,17 @@ export function ReceiptBuilder({
                 </CardTitle>
                 {/* Tax toggle */}
                 <label htmlFor="taxToggle" className="flex cursor-pointer items-center gap-2">
-                  <span className={cn("text-sm font-semibold transition-colors", taxEnabled ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500")}>
+                  <span
+                    className={cn(
+                      "text-sm font-semibold transition-colors",
+                      taxEnabled
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-slate-400 dark:text-slate-500",
+                    )}
+                  >
                     {taxEnabled ? "Tax on" : "Tax off"}
                   </span>
-                  <Switch
-                    id="taxToggle"
-                    checked={taxEnabled}
-                    onCheckedChange={setTaxEnabled}
-                  />
+                  <Switch id="taxToggle" checked={taxEnabled} onCheckedChange={setTaxEnabled} />
                 </label>
               </div>
             </CardHeader>
@@ -587,7 +699,7 @@ export function ReceiptBuilder({
                   />
                 </div>
                 {taxEnabled && (
-                  <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex flex-col gap-1.5 duration-200 animate-in fade-in slide-in-from-top-1">
                     <Label htmlFor="builderTaxRate">Tax rate (%)</Label>
                     <Input
                       id="builderTaxRate"
@@ -618,24 +730,36 @@ export function ReceiptBuilder({
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/50">
                 <dl className="flex flex-col gap-3 text-sm">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-slate-500 dark:text-slate-400 shrink-0">Subtotal</dt>
-                    <dd className="font-semibold tabular-nums text-slate-900 dark:text-white break-all text-right">{formatMoney(totals.subtotal, currency)}</dd>
+                    <dt className="shrink-0 text-slate-500 dark:text-slate-400">Subtotal</dt>
+                    <dd className="break-all text-right font-semibold tabular-nums text-slate-900 dark:text-white">
+                      {formatMoney(totals.subtotal, currency)}
+                    </dd>
                   </div>
                   {totals.discountAmt > 0 && (
                     <div className="flex justify-between gap-4 text-emerald-600 dark:text-emerald-400">
                       <dt className="shrink-0">Discount</dt>
-                      <dd className="font-semibold tabular-nums break-all text-right">−{formatMoney(totals.discountAmt, currency)}</dd>
+                      <dd className="break-all text-right font-semibold tabular-nums">
+                        −{formatMoney(totals.discountAmt, currency)}
+                      </dd>
                     </div>
                   )}
                   {taxEnabled && (
                     <div className="flex justify-between gap-4">
-                      <dt className="text-slate-500 dark:text-slate-400 shrink-0">Tax ({taxRate}%)</dt>
-                      <dd className="font-semibold tabular-nums text-slate-900 dark:text-white break-all text-right">{formatMoney(totals.taxTotal, currency)}</dd>
+                      <dt className="shrink-0 text-slate-500 dark:text-slate-400">
+                        Tax ({taxRate}%)
+                      </dt>
+                      <dd className="break-all text-right font-semibold tabular-nums text-slate-900 dark:text-white">
+                        {formatMoney(totals.taxTotal, currency)}
+                      </dd>
                     </div>
                   )}
                   <div className="mt-1 flex justify-between gap-4 border-t border-slate-200 pt-3 text-base dark:border-slate-700">
-                    <dt className="font-bold text-slate-900 dark:text-white shrink-0 mt-1">Total</dt>
-                    <dd className="font-extrabold tabular-nums text-slate-900 dark:text-white break-all text-right">{formatMoney(totals.total, currency)}</dd>
+                    <dt className="mt-1 shrink-0 font-bold text-slate-900 dark:text-white">
+                      Total
+                    </dt>
+                    <dd className="break-all text-right font-extrabold tabular-nums text-slate-900 dark:text-white">
+                      {formatMoney(totals.total, currency)}
+                    </dd>
                   </div>
                 </dl>
               </div>
@@ -651,7 +775,9 @@ export function ReceiptBuilder({
                 </span>
                 Notes
               </CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">Visible on the {copy.noun} — thank-you message, extra details, etc.</CardDescription>
+              <CardDescription className="text-slate-500 dark:text-slate-400">
+                Visible on the {copy.noun} — thank-you message, extra details, etc.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <textarea
@@ -659,7 +785,7 @@ export function ReceiptBuilder({
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="Thanks for your business!"
-                className="flex w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 ring-offset-background transition-all placeholder:text-slate-400 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:border-blue-500/50 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus-visible:ring-blue-500 md:text-sm"
+                className="flex w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 ring-offset-background transition-all placeholder:text-slate-400 hover:border-slate-300 focus-visible:border-blue-500/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus-visible:ring-blue-500 md:text-sm"
               />
             </CardContent>
           </Card>
@@ -675,18 +801,30 @@ export function ReceiptBuilder({
               </p>
               {!isInvoice && (
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="sm" type="button" className="h-8 gap-1.5 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    className="h-8 gap-1.5 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  >
                     <Download className="h-3.5 w-3.5" /> PDF
                   </Button>
                   <EmailSendButton
                     receiptId={initialReceipt?.id || "preview"}
                     status={initialReceipt?.status || "DRAFT"}
-                    defaultEmail={clientId ? clients.find(c => c.id === clientId)?.email : undefined}
+                    defaultEmail={
+                      clientId ? clients.find((c) => c.id === clientId)?.email : undefined
+                    }
                     variant="ghost"
                     iconType="mail"
                     className="h-8 gap-1.5 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                   />
-                  <Button variant="ghost" size="sm" type="button" className="h-8 gap-1.5 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    className="h-8 gap-1.5 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  >
                     <Link2 className="h-3.5 w-3.5" /> Link
                   </Button>
                 </div>
@@ -695,7 +833,11 @@ export function ReceiptBuilder({
 
             {/* Receipt preview */}
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-inner dark:border-slate-700 dark:bg-slate-800/50">
-              <ReceiptDocument receipt={previewReceipt} business={business} templateId={templateId} />
+              <ReceiptDocument
+                receipt={previewReceipt}
+                business={business}
+                templateId={templateId}
+              />
             </div>
           </div>
         </aside>
@@ -709,17 +851,26 @@ export function ReceiptBuilder({
           aria-hidden={!previewOpen}
         >
           <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
-            <p className="text-sm font-bold text-slate-900 dark:text-white">{isInvoice ? "Invoice" : "Receipt"} Preview</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-white">
+              {isInvoice ? "Invoice" : "Receipt"} Preview
+            </p>
             <div className="flex items-center gap-2">
               {!isInvoice && (
                 <>
-                  <Button variant="ghost" size="sm" type="button" className="h-8 gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    className="h-8 gap-1.5 text-xs text-slate-600 dark:text-slate-300"
+                  >
                     <Download className="h-3.5 w-3.5" /> PDF
                   </Button>
                   <EmailSendButton
                     receiptId={initialReceipt?.id || "preview"}
                     status={initialReceipt?.status || "DRAFT"}
-                    defaultEmail={clientId ? clients.find(c => c.id === clientId)?.email : undefined}
+                    defaultEmail={
+                      clientId ? clients.find((c) => c.id === clientId)?.email : undefined
+                    }
                     variant="ghost"
                     iconType="mail"
                     className="h-8 gap-1.5 text-xs text-slate-600 dark:text-slate-300"
@@ -744,13 +895,15 @@ export function ReceiptBuilder({
       {/* ─── Sticky Action Bar ──────────────────────────────────────── */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/90 glass px-4 py-3 sm:px-6 lg:left-60 lg:px-8 dark:border-slate-700 dark:bg-slate-900/90",
+          "glass fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/90 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/90 sm:px-6 lg:left-60 lg:px-8",
           "pb-[calc(env(safe-area-inset-bottom)+80px)] lg:pb-3",
         )}
       >
         <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-3">
           <div className="hidden flex-col sm:flex">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total</span>
+            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              Total
+            </span>
             <span className="text-2xl font-extrabold tabular-nums tracking-tight text-slate-900 dark:text-white">
               {formatMoney(totals.total, currency)}
             </span>
@@ -765,9 +918,13 @@ export function ReceiptBuilder({
             {initialReceipt && (
               <span className="mr-2 hidden text-xs text-slate-500 dark:text-slate-400 sm:inline-flex">
                 {isAutosaving ? (
-                  <span className="flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Saving...</span>
+                  <span className="flex items-center gap-1">
+                    <Loader2 className="h-3 w-3 animate-spin" /> Saving...
+                  </span>
                 ) : lastSaved ? (
-                  <span>Saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>
+                    Saved {lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
                 ) : null}
               </span>
             )}
@@ -775,16 +932,20 @@ export function ReceiptBuilder({
             <Button
               variant="outline"
               type="button"
-              className="hidden sm:inline-flex h-8 px-3 text-xs font-semibold gap-1.5 border-slate-200 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="hidden h-8 gap-1.5 border-slate-200 px-3 text-xs font-semibold dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white sm:inline-flex"
               disabled={isPending}
               onClick={() => submit("DRAFT")}
             >
-              {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              {isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save className="h-3.5 w-3.5" />
+              )}
               Save draft
             </Button>
             <Button
               type="button"
-              className="sm:hidden h-8 px-2.5 text-xs font-semibold gap-1 bg-blue-600 text-white shadow-md shadow-blue-600/20 hover:bg-blue-700"
+              className="h-8 gap-1 bg-blue-600 px-2.5 text-xs font-semibold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 sm:hidden"
               disabled={isPending}
               onClick={() => setPreviewOpen(true)}
             >
@@ -793,11 +954,15 @@ export function ReceiptBuilder({
             </Button>
             <Button
               type="button"
-              className="h-8 px-2.5 sm:px-4 text-xs font-semibold gap-1 sm:gap-1.5 bg-blue-600 text-white shadow-md shadow-blue-600/20 hover:bg-blue-700"
+              className="h-8 gap-1 bg-blue-600 px-2.5 text-xs font-semibold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 sm:gap-1.5 sm:px-4"
               disabled={isPending}
               onClick={() => submit("ISSUED")}
             >
-              {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+              {isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
               <span className="hidden sm:inline">{copy.issueCta}</span>
               <span className="sm:hidden">Issue</span>
             </Button>

@@ -38,14 +38,9 @@ export function SortableLineItem({
   onUpdate,
   onRemove,
 }: Props) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -60,11 +55,11 @@ export function SortableLineItem({
       style={style}
       className="group grid grid-cols-12 gap-2 rounded-xl border border-border/60 bg-surface/50 p-3 transition-all duration-200 hover:border-border hover:bg-surface sm:gap-3 sm:p-4"
     >
-      <div className="col-span-12 flex flex-col gap-1.5 sm:col-span-6 relative">
-        <Label htmlFor={`desc-${item.id}`} className="text-xs flex items-center gap-1.5">
+      <div className="relative col-span-12 flex flex-col gap-1.5 sm:col-span-6">
+        <Label htmlFor={`desc-${item.id}`} className="flex items-center gap-1.5 text-xs">
           <button
             type="button"
-            className="cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-foreground -ml-1 p-0.5"
+            className="-ml-1 cursor-grab p-0.5 text-muted-foreground/50 hover:text-foreground active:cursor-grabbing"
             {...attributes}
             {...listeners}
           >

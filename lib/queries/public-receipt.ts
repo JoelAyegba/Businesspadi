@@ -60,7 +60,9 @@ export async function getPublicReceipt(shareId: string): Promise<PublicReceiptVi
       discountValue: toNumber(r.discountValue),
       notes: r.notes,
       templateId: r.templateId,
-      client: r.client ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone } : null,
+      client: r.client
+        ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone }
+        : null,
       lineItems: r.lineItems.map((li) => ({
         id: li.id,
         description: li.description,

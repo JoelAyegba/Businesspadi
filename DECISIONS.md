@@ -13,16 +13,19 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 **Context.** The 10 templates were Tailwind class bundles over one shared layout, so they differed only in colour. The PDF had its own single design and ignored the chosen template. The PDF also used built-in Helvetica (WinAnsi encoding), which has no ₦ glyph, so every naira amount printed without its currency sign.
 
 **Decision.**
+
 - A template is data (`lib/templates.ts`): layout family (letterhead / banner / editorial / sidebar), heading font, and a hex palette.
 - `buildDocModel` (`lib/document-model.ts`) produces the display model. Two renderers consume it: the web layouts (`components/receipt/layouts`) and the react-pdf layouts (`lib/pdf/layouts`).
 - PDF fonts are embedded static TTFs (Inter, Playfair Display, JetBrains Mono; OFL).
 - Classic follows the business brand colour, darkened to ≥ 4.5:1 contrast on paper.
 
 **Alternatives considered.**
-- *Render HTML to PDF with headless Chrome.* This gives perfect parity, but it's heavy on serverless (cold starts, bundle size), and it's slow for our high-latency users.
-- *Keep separate designs.* This repeats the old drift.
+
+- _Render HTML to PDF with headless Chrome._ This gives perfect parity, but it's heavy on serverless (cold starts, bundle size), and it's slow for our high-latency users.
+- _Keep separate designs._ This repeats the old drift.
 
 **Consequences.**
+
 - Every layout exists twice. Parity is protected by the shared model and palette, but layout code must be edited in both places.
 - Money must stay in Inter: the heading fonts lack ₦/₵.
 - Existing `templateId` values are kept.
@@ -53,6 +56,7 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 **Why not a separate table.** A parallel model would duplicate the numbering, PDF, query, and view-mapping layers (~2× the code) and double the surface for the multi-tenant `businessId`-scoping invariant to be violated. The discriminator reuses `toView`, `receiptInclude`, `ReceiptDocument`, `ReceiptBuilder`, `ReceiptList`, and the actions with minimal churn.
 
 **Consequences.**
+
 - **Cross-count risk (load-bearing):** every `prisma.receipt` query on receipt surfaces must now filter `documentType: "RECEIPT"`, or invoices pollute receipt KPIs/lists/limits/client-stats. All existing call sites were updated in the same change; `tests/multi-tenant.test.ts` guards them.
 - **Free tier:** issued invoices count toward the 20/month cap; the conversion receipt is excluded (`sourceInvoiceId != null`) so payment doesn't double-charge quota.
 - **v1 scope:** invoices are viewable/printable in-app only — no invoice PDF, public `/i/[shareId]` share, or email yet (the post-payment receipt remains fully shareable). Deferred items are structured to drop in (parameterize `receipt-pdf.tsx`, add the public route to `middleware.ts`). Overdue auto-status and partial payments are also deferred.
@@ -71,7 +75,7 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 
 **Why not the alternatives.** Advisory locks live outside the transaction's normal lifecycle and are easy to leak in error paths. Per-business sequences would require dynamic DDL (`CREATE SEQUENCE`) on every onboarding — operationally painful and Prisma-unfriendly.
 
-**Consequences.** Concurrent issuance for the *same* business serializes briefly on the counter row. That's fine — a single business issuing two receipts in the same millisecond is not a hot path. Year is part of the primary key so each new year starts at `1` automatically. Implementation: [lib/queries/receipt-number.ts](lib/queries/receipt-number.ts), schema model `ReceiptCounter`, migration `20260506075606_add_receipt_counter`.
+**Consequences.** Concurrent issuance for the _same_ business serializes briefly on the counter row. That's fine — a single business issuing two receipts in the same millisecond is not a hot path. Year is part of the primary key so each new year starts at `1` automatically. Implementation: [lib/queries/receipt-number.ts](lib/queries/receipt-number.ts), schema model `ReceiptCounter`, migration `20260506075606_add_receipt_counter`.
 
 ---
 
@@ -84,12 +88,14 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 **Decision.** `@react-pdf/renderer` (server-side rendering via `renderToBuffer`).
 
 **Why.**
+
 - Native page-break support (`<View wrap={false}>`, `fixed` headers) — jsPDF requires manual cursor math that breaks the moment line items overflow.
 - Programmable layout via React component tree — easy to keep visually consistent with the on-screen `ReceiptDocument`, which is the brand-first principle from the implementation plan.
 - Server-side generation keeps PDF rendering off the user's device — important for low-end Android phones in our target market and for future email-attachment / public-share-link flows that need bytes server-side anyway.
 - Snapshot rendering: the PDF reads from `Receipt.businessSnapshot`, so retroactive branding edits never rewrite history.
 
 **Trade-offs.**
+
 - Two parallel renderers: HTML `ReceiptDocument` (screen) and `ReceiptPdfDocument` (PDF). The implementation plan called for "single source of truth"; in practice with `@react-pdf/renderer`'s primitives that's not literally achievable. Mitigation: both consume the same `PdfReceiptInput` shape — the data contract is the source of truth, not the JSX.
 - Bundle weight: pulled in ~58 transitive packages. Acceptable since rendering runs only on the Node runtime (`runtime = "nodejs"` on the route), not the edge.
 - Custom font support exists via `Font.register()`; deferred to Phase 5 polish — Helvetica looks fine for v1.
@@ -133,6 +139,7 @@ Format inspired by [ADR](https://adr.github.io/), but lighter.
 **Decision.** Single helper `lib/auth.ts:getServerContext()` resolves `(user, business)` from the Clerk session. Every server component, server action, and route handler under `/app` calls it first. Every Prisma query against business-owned tables passes `businessId` in its `WHERE`.
 
 **Alternatives considered.**
+
 - Postgres Row Level Security: stronger guarantee, but harder to debug and not all of our queries flow through Postgres-aware connection logic.
 - Per-tenant database (schema-per-tenant): heavy at our scale.
 

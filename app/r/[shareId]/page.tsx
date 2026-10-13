@@ -24,11 +24,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PublicReceiptPage({
-  params,
-}: {
-  params: { shareId: string };
-}) {
+export default async function PublicReceiptPage({ params }: { params: { shareId: string } }) {
   const data = await getPublicReceipt(params.shareId);
   if (!data) notFound();
   const { receipt, business } = data;

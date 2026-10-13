@@ -31,7 +31,7 @@ export function KpiCard({
         {/* Glow behind the text */}
         <div
           className={cn(
-            "pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full opacity-[0.03] blur-3xl transition-all duration-500 group-hover:opacity-[0.08] group-hover:scale-150",
+            "pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full opacity-[0.03] blur-3xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-[0.08]",
             tone === "success" && "bg-emerald-500",
             tone === "warning" && "bg-amber-500",
             tone === "default" && "bg-blue-600",
@@ -40,19 +40,17 @@ export function KpiCard({
         />
 
         {/* Label */}
-        <p className="text-xs font-semibold tracking-tight text-slate-500 dark:text-slate-400 z-10 flex items-center gap-2">
+        <p className="z-10 flex items-center gap-2 text-xs font-semibold tracking-tight text-slate-500 dark:text-slate-400">
           {label}
         </p>
 
         {/* Value and Hint */}
         <div className="z-10 mt-1">
-          <p className="break-all text-xl font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums sm:text-3xl lg:text-4xl">
+          <p className="break-all text-xl font-extrabold tabular-nums tracking-tight text-slate-900 dark:text-white sm:text-3xl lg:text-4xl">
             {value}
           </p>
           {hint && (
-            <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-              {hint}
-            </p>
+            <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">{hint}</p>
           )}
         </div>
       </CardContent>

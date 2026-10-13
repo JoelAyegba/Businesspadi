@@ -13,7 +13,14 @@ type Props = {
   placeholder?: string;
 };
 
-export function ProductComboboxInput({ products, value, onChange, onSelectProduct, id, placeholder }: Props) {
+export function ProductComboboxInput({
+  products,
+  value,
+  onChange,
+  onSelectProduct,
+  id,
+  placeholder,
+}: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,9 +35,10 @@ export function ProductComboboxInput({ products, value, onChange, onSelectProduc
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(value.toLowerCase()) ||
-    (p.description && p.description.toLowerCase().includes(value.toLowerCase()))
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(value.toLowerCase()) ||
+      (p.description && p.description.toLowerCase().includes(value.toLowerCase())),
   );
 
   return (
@@ -61,14 +69,14 @@ export function ProductComboboxInput({ products, value, onChange, onSelectProduc
       )}
 
       {open && products.length > 0 && (
-        <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-background text-popover-foreground shadow-md">
+        <div className="text-popover-foreground absolute left-0 top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-background shadow-md">
           <div className="p-1">
             {filtered.length === 0 && (
               <div className="py-3 text-center text-sm text-muted-foreground">
                 No matching products
               </div>
             )}
-            {filtered.map(p => (
+            {filtered.map((p) => (
               <div
                 key={p.id}
                 className="relative flex w-full cursor-pointer select-none flex-col items-start justify-center rounded-sm py-1.5 pl-3 pr-2 text-sm outline-none transition-colors hover:bg-muted hover:text-accent-foreground"
@@ -83,7 +91,9 @@ export function ProductComboboxInput({ products, value, onChange, onSelectProduc
                   <span className="font-medium">{p.name}</span>
                 </div>
                 {p.description && (
-                  <span className="ml-[22px] text-xs text-muted-foreground font-normal line-clamp-1">{p.description}</span>
+                  <span className="ml-[22px] line-clamp-1 text-xs font-normal text-muted-foreground">
+                    {p.description}
+                  </span>
                 )}
               </div>
             ))}

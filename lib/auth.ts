@@ -18,7 +18,14 @@ import { prisma, withDbRetry } from "@/lib/db";
  */
 export type ServerContext = {
   user: { id: string; clerkId: string; email: string } | null;
-  business: { id: string; name: string; slug: string; brandColor: string | null; defaultCurrency: string; profileComplete: boolean } | null;
+  business: {
+    id: string;
+    name: string;
+    slug: string;
+    brandColor: string | null;
+    defaultCurrency: string;
+    profileComplete: boolean;
+  } | null;
 };
 
 const CONTEXT_BUSINESS_SELECT = {
@@ -97,7 +104,11 @@ export const getServerContext = cache(async function getServerContext(): Promise
  * Shared by the inline bootstrap above and the Clerk `user.created` webhook —
  * whichever runs second finds the existing membership and creates nothing.
  */
-export async function ensureUserAndBusiness(tx: Prisma.TransactionClient, clerkId: string, email: string) {
+export async function ensureUserAndBusiness(
+  tx: Prisma.TransactionClient,
+  clerkId: string,
+  email: string,
+) {
   const user = await tx.user.upsert({
     where: { clerkId },
     update: { email },

@@ -85,7 +85,9 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
 
   /* Smooth scrolling globally */
@@ -126,11 +128,15 @@
 @layer utilities {
   /* Micro-interaction: subtle float on hover */
   .hover-lift {
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    transition:
+      transform var(--transition-base),
+      box-shadow var(--transition-base);
   }
   .hover-lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -5px rgba(15, 23, 42, 0.04);
+    box-shadow:
+      0 8px 25px -5px rgba(15, 23, 42, 0.08),
+      0 4px 10px -5px rgba(15, 23, 42, 0.04);
   }
 
   /* Gradient text utility */
@@ -147,8 +153,13 @@
 
   /* Pulse glow for active/notification states */
   @keyframes pulse-glow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
   .animate-pulse-glow {
     animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -156,11 +167,20 @@
 
   /* Skeleton shimmer animation */
   @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
   }
   .animate-shimmer {
-    background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted-foreground) / 0.08) 50%, hsl(var(--muted)) 75%);
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.08) 50%,
+      hsl(var(--muted)) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
   }

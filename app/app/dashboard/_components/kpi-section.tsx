@@ -3,13 +3,19 @@ import { KpiCard } from "@/components/dashboard/kpi-card";
 import { getDocumentKpis } from "@/lib/queries/kpis";
 import { formatMoney } from "@/lib/utils";
 
-export async function KpiSection({ businessId, currency }: { businessId: string; currency: string }) {
+export async function KpiSection({
+  businessId,
+  currency,
+}: {
+  businessId: string;
+  currency: string;
+}) {
   const { receipts: kpis, invoices: invoiceKpis } = await getDocumentKpis(businessId, currency);
 
   return (
     <section
       aria-label="Key metrics"
-      className="animate-fade-in-delay-1 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      className="animate-fade-in-delay-1 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4"
     >
       <KpiCard
         label="Total Revenue"

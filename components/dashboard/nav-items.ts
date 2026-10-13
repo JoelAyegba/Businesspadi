@@ -1,4 +1,13 @@
-import { LayoutDashboard, Receipt, FileText, Users, Settings, Package, CreditCard, type LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  Receipt,
+  FileText,
+  Users,
+  Settings,
+  Package,
+  CreditCard,
+  type LucideIcon,
+} from "lucide-react";
 
 export type NavItem = {
   href: string;

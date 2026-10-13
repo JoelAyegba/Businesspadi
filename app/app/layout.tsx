@@ -32,12 +32,30 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {/* Brand */}
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary-foreground">
-              <path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3z" fill="currentColor" opacity="0.2" />
-              <path d="M5 6h6M5 8.5h4M5 11h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="text-primary-foreground"
+            >
+              <path
+                d="M2 3a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3z"
+                fill="currentColor"
+                opacity="0.2"
+              />
+              <path
+                d="M5 6h6M5 8.5h4M5 11h2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
-          <Link href="/app/dashboard" className="text-base font-semibold tracking-tight text-foreground">
+          <Link
+            href="/app/dashboard"
+            className="text-base font-semibold tracking-tight text-foreground"
+          >
             Businesspadi
           </Link>
         </div>
@@ -48,8 +66,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {/* Plan info */}
         <div className="mt-auto border-t border-border px-4 py-4">
           <div className="rounded-lg bg-primary/5 px-3 py-3">
-            <p className="truncate text-xs font-semibold text-foreground">{ctx.business?.name ?? "No business"}</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">Free plan · <span className="text-primary font-medium cursor-pointer hover:underline">Upgrade</span></p>
+            <p className="truncate text-xs font-semibold text-foreground">
+              {ctx.business?.name ?? "No business"}
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Free plan ·{" "}
+              <span className="cursor-pointer font-medium text-primary hover:underline">
+                Upgrade
+              </span>
+            </p>
           </div>
         </div>
       </aside>
@@ -62,12 +87,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {/* Mobile brand */}
             <Link href="/app/dashboard" className="flex items-center gap-2 lg:hidden">
               <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-primary-foreground">
-                  <path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3z" fill="currentColor" opacity="0.2" />
-                  <path d="M5 6h6M5 8.5h4M5 11h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  className="text-primary-foreground"
+                >
+                  <path
+                    d="M2 3a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3z"
+                    fill="currentColor"
+                    opacity="0.2"
+                  />
+                  <path
+                    d="M5 6h6M5 8.5h4M5 11h2"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </div>
-              <span className="text-base font-semibold tracking-tight text-foreground">Businesspadi</span>
+              <span className="text-base font-semibold tracking-tight text-foreground">
+                Businesspadi
+              </span>
             </Link>
 
             {/* Desktop: business name */}

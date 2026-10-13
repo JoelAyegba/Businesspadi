@@ -69,7 +69,7 @@ export function ProductPicker({ products, currency, onSelect }: ProductPickerPro
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-72 animate-scale-in overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800 sm:w-80">
+        <div className="animate-scale-in absolute left-0 top-full z-50 mt-1 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800 sm:w-80">
           {/* Search */}
           <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-700">
             <Search className="h-3.5 w-3.5 shrink-0 text-slate-400" />
@@ -95,9 +95,7 @@ export function ProductPicker({ products, currency, onSelect }: ProductPickerPro
           {/* Products list */}
           <div className="max-h-64 overflow-y-auto">
             {filtered.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-slate-400">
-                No products found
-              </div>
+              <div className="px-4 py-6 text-center text-sm text-slate-400">No products found</div>
             ) : (
               filtered.map((product) => (
                 <button

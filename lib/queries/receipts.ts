@@ -53,7 +53,9 @@ export function toView(r: ReceiptWithRelations): MockReceipt {
     discountValue: toNumber(r.discountValue),
     notes: r.notes,
     templateId: r.templateId,
-    client: r.client ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone } : null,
+    client: r.client
+      ? { id: r.client.id, name: r.client.name, email: r.client.email, phone: r.client.phone }
+      : null,
     lineItems: r.lineItems.map((li) => ({
       id: li.id,
       description: li.description,
@@ -80,7 +82,7 @@ export function listReceipts(businessId: string, opts?: { take?: number }): Prom
       return rows.map(toView);
     },
     ["receipts", businessId, String(opts?.take ?? "all")],
-    { revalidate: 30, tags: [`receipts-${businessId}`] }
+    { revalidate: 30, tags: [`receipts-${businessId}`] },
   )();
 }
 
@@ -97,7 +99,7 @@ export function listRecents(businessId: string, opts?: { take?: number }): Promi
       return rows.map(toView);
     },
     ["recents", businessId, String(opts?.take ?? 8)],
-    { revalidate: 30, tags: [`receipts-${businessId}`] }
+    { revalidate: 30, tags: [`receipts-${businessId}`] },
   )();
 }
 

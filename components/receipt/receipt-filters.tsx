@@ -48,15 +48,19 @@ export function ReceiptFilters({
       if (status !== "ALL" && r.status !== status) return false;
       if (!q) return true;
       return (
-        r.number.toLowerCase().includes(q) ||
-        r.client?.name.toLowerCase().includes(q) ||
-        false
+        r.number.toLowerCase().includes(q) || r.client?.name.toLowerCase().includes(q) || false
       );
     });
   }, [receipts, status, query]);
 
   const counts = useMemo(() => {
-    const c: Record<FilterValue, number> = { ALL: receipts.length, DRAFT: 0, ISSUED: 0, PAID: 0, VOID: 0 };
+    const c: Record<FilterValue, number> = {
+      ALL: receipts.length,
+      DRAFT: 0,
+      ISSUED: 0,
+      PAID: 0,
+      VOID: 0,
+    };
     for (const r of receipts) c[r.status]++;
     return c;
   }, [receipts]);
@@ -113,7 +117,9 @@ export function ReceiptFilters({
               <span
                 className={cn(
                   "rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums",
-                  active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground",
+                  active
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
                 )}
               >
                 {counts[f.value]}

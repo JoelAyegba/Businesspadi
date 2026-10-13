@@ -55,7 +55,6 @@ beforeEach(() => {
 });
 
 describe("business-scoped query layer", () => {
-
   it("listReceipts filters by businessId", async () => {
     findManyMock.mockResolvedValue([]);
     const { listReceipts } = await import("@/lib/queries/receipts");
@@ -103,7 +102,13 @@ describe("business-scoped query layer", () => {
     const { getDocumentKpis } = await import("@/lib/queries/kpis");
     const { receipts, invoices } = await getDocumentKpis("biz_A", "NGN");
     expect(receipts).toEqual({ revenue: 150, receiptsIssued: 3, draftCount: 4, currency: "NGN" });
-    expect(invoices).toEqual({ outstanding: 300, draftCount: 2, invoiceCount: 4, unpaidCount: 3, currency: "NGN" });
+    expect(invoices).toEqual({
+      outstanding: 300,
+      draftCount: 2,
+      invoiceCount: 4,
+      unpaidCount: 3,
+      currency: "NGN",
+    });
   });
 
   it("listReceipts filters to documentType RECEIPT (invoices excluded)", async () => {
@@ -177,10 +182,7 @@ describe("free-tier limits", () => {
     const { startOfMonthInTimeZone } = await import("@/lib/billing/limits");
     // 2026-05-15 12:00 UTC → in Lagos (UTC+1) the month started
     // 2026-04-30 23:00 UTC = 2026-05-01 00:00 Lagos.
-    const monthStart = startOfMonthInTimeZone(
-      new Date("2026-05-15T12:00:00Z"),
-      "Africa/Lagos",
-    );
+    const monthStart = startOfMonthInTimeZone(new Date("2026-05-15T12:00:00Z"), "Africa/Lagos");
     expect(monthStart.toISOString()).toBe("2026-04-30T23:00:00.000Z");
   });
 });

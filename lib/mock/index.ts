@@ -79,17 +79,47 @@ export const mockBusiness: MockBusiness = {
   name: "Adunni Studio",
   slug: "adunni-studio",
   logoUrl: null,
-  brandColor: "#2563EB", /* Updated to Royal Blue brand color */
+  brandColor: "#2563EB" /* Updated to Royal Blue brand color */,
   defaultCurrency: "NGN",
   subscriptionStatus: "free",
 };
 
 export const mockClients: MockClient[] = [
-  { id: "cli_1", businessId: "biz_1", name: "Bola Tinubu Ventures", email: "accounts@btv.ng", phone: "+234 803 111 2222" },
-  { id: "cli_2", businessId: "biz_1", name: "Chiamaka Okeke", email: "chiamaka@gmail.com", phone: "+234 805 222 3333" },
-  { id: "cli_3", businessId: "biz_1", name: "Lagos Tech Hub", email: "finance@lth.io", phone: null },
-  { id: "cli_4", businessId: "biz_1", name: "Emeka Logistics Ltd", email: null, phone: "+234 802 444 5555" },
-  { id: "cli_5", businessId: "biz_1", name: "Ngozi & Sons", email: "ngozi@nsons.ng", phone: "+234 807 555 6666" },
+  {
+    id: "cli_1",
+    businessId: "biz_1",
+    name: "Bola Tinubu Ventures",
+    email: "accounts@btv.ng",
+    phone: "+234 803 111 2222",
+  },
+  {
+    id: "cli_2",
+    businessId: "biz_1",
+    name: "Chiamaka Okeke",
+    email: "chiamaka@gmail.com",
+    phone: "+234 805 222 3333",
+  },
+  {
+    id: "cli_3",
+    businessId: "biz_1",
+    name: "Lagos Tech Hub",
+    email: "finance@lth.io",
+    phone: null,
+  },
+  {
+    id: "cli_4",
+    businessId: "biz_1",
+    name: "Emeka Logistics Ltd",
+    email: null,
+    phone: "+234 802 444 5555",
+  },
+  {
+    id: "cli_5",
+    businessId: "biz_1",
+    name: "Ngozi & Sons",
+    email: "ngozi@nsons.ng",
+    phone: "+234 807 555 6666",
+  },
 ];
 
 const findClient = (id: string) => {
@@ -113,8 +143,20 @@ export const mockReceipts: MockReceipt[] = [
     total: 483750,
     client: findClient("cli_1"),
     lineItems: [
-      { id: "li_1", description: "Brand identity package", quantity: 1, unitPrice: 350000, subtotal: 350000 },
-      { id: "li_2", description: "Logo revisions", quantity: 2, unitPrice: 50000, subtotal: 100000 },
+      {
+        id: "li_1",
+        description: "Brand identity package",
+        quantity: 1,
+        unitPrice: 350000,
+        subtotal: 350000,
+      },
+      {
+        id: "li_2",
+        description: "Logo revisions",
+        quantity: 2,
+        unitPrice: 50000,
+        subtotal: 100000,
+      },
     ],
   },
   {
@@ -132,7 +174,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 129000,
     client: findClient("cli_2"),
     lineItems: [
-      { id: "li_3", description: "Wedding photography — half day", quantity: 1, unitPrice: 120000, subtotal: 120000 },
+      {
+        id: "li_3",
+        description: "Wedding photography — half day",
+        quantity: 1,
+        unitPrice: 120000,
+        subtotal: 120000,
+      },
     ],
   },
   {
@@ -150,7 +198,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 860000,
     client: findClient("cli_3"),
     lineItems: [
-      { id: "li_4", description: "Workshop facilitation (2 days)", quantity: 2, unitPrice: 400000, subtotal: 800000 },
+      {
+        id: "li_4",
+        description: "Workshop facilitation (2 days)",
+        quantity: 2,
+        unitPrice: 400000,
+        subtotal: 800000,
+      },
     ],
   },
   {
@@ -168,7 +222,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 75000,
     client: findClient("cli_4"),
     lineItems: [
-      { id: "li_5", description: "Last-mile delivery — April batch", quantity: 15, unitPrice: 5000, subtotal: 75000 },
+      {
+        id: "li_5",
+        description: "Last-mile delivery — April batch",
+        quantity: 15,
+        unitPrice: 5000,
+        subtotal: 75000,
+      },
     ],
   },
   {
@@ -186,7 +246,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 268750,
     client: findClient("cli_5"),
     lineItems: [
-      { id: "li_6", description: "Consulting retainer — May", quantity: 1, unitPrice: 250000, subtotal: 250000 },
+      {
+        id: "li_6",
+        description: "Consulting retainer — May",
+        quantity: 1,
+        unitPrice: 250000,
+        subtotal: 250000,
+      },
     ],
   },
   {
@@ -204,7 +270,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 64500,
     client: findClient("cli_1"),
     lineItems: [
-      { id: "li_7", description: "Print proofs (cancelled)", quantity: 1, unitPrice: 60000, subtotal: 60000 },
+      {
+        id: "li_7",
+        description: "Print proofs (cancelled)",
+        quantity: 1,
+        unitPrice: 60000,
+        subtotal: 60000,
+      },
     ],
   },
   {
@@ -222,7 +294,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 15000,
     client: null,
     lineItems: [
-      { id: "li_8", description: "Walk-in: poster print", quantity: 1, unitPrice: 15000, subtotal: 15000 },
+      {
+        id: "li_8",
+        description: "Walk-in: poster print",
+        quantity: 1,
+        unitPrice: 15000,
+        subtotal: 15000,
+      },
     ],
   },
   {
@@ -240,7 +318,13 @@ export const mockReceipts: MockReceipt[] = [
     total: 215000,
     client: findClient("cli_3"),
     lineItems: [
-      { id: "li_9", description: "Talk: design systems", quantity: 1, unitPrice: 200000, subtotal: 200000 },
+      {
+        id: "li_9",
+        description: "Talk: design systems",
+        quantity: 1,
+        unitPrice: 200000,
+        subtotal: 200000,
+      },
     ],
   },
 ];

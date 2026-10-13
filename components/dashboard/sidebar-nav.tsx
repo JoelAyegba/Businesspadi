@@ -43,7 +43,10 @@ export function SidebarNav() {
             />
             <span>{item.label}</span>
             {active && (
-              <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" aria-hidden />
+              <span
+                className="animate-pulse-glow absolute right-3 h-1.5 w-1.5 rounded-full bg-primary"
+                aria-hidden
+              />
             )}
           </Link>
         );

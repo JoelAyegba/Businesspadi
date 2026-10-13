@@ -11,7 +11,10 @@ import { ensureShareId } from "@/app/app/receipts/actions";
 
 const recipient = z.string().trim().email().max(254);
 
-export async function sendReceiptEmail(receiptId: string, toEmail: string): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function sendReceiptEmail(
+  receiptId: string,
+  toEmail: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const { business } = await requireBusinessContext();
 
   const to = recipient.safeParse(toEmail);

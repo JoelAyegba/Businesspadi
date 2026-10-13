@@ -22,9 +22,19 @@ import { completeOnboarding, type OnboardingFormData } from "@/app/app/onboardin
 import { useRouter } from "next/navigation";
 
 const STEPS = [
-  { id: "business", title: "Business Details", icon: Building2, description: "Tell us about your business" },
+  {
+    id: "business",
+    title: "Business Details",
+    icon: Building2,
+    description: "Tell us about your business",
+  },
   { id: "contact", title: "Contact Info", icon: Phone, description: "How can clients reach you?" },
-  { id: "preferences", title: "Preferences", icon: BadgeDollarSign, description: "Configure your defaults" },
+  {
+    id: "preferences",
+    title: "Preferences",
+    icon: BadgeDollarSign,
+    description: "Configure your defaults",
+  },
   { id: "signature", title: "Signature", icon: Pen, description: "Add your official signature" },
 ] as const;
 
@@ -62,12 +72,16 @@ export function OnboardingWizard() {
 
     switch (step) {
       case 0: // Business details
-        if (!name.trim() || name.trim().length < 2) newErrors.name = ["Business name must be at least 2 characters"];
-        if (!address.trim() || address.trim().length < 3) newErrors.address = ["Address is required"];
+        if (!name.trim() || name.trim().length < 2)
+          newErrors.name = ["Business name must be at least 2 characters"];
+        if (!address.trim() || address.trim().length < 3)
+          newErrors.address = ["Address is required"];
         break;
       case 1: // Contact
-        if (!phone.trim() || phone.trim().length < 6) newErrors.phone = ["A valid phone number is required"];
-        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = ["A valid email is required"];
+        if (!phone.trim() || phone.trim().length < 6)
+          newErrors.phone = ["A valid phone number is required"];
+        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+          newErrors.email = ["A valid email is required"];
         break;
       case 2: // Preferences
         break;
@@ -124,12 +138,18 @@ export function OnboardingWizard() {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="relative mx-4 flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border/50 bg-background shadow-2xl animate-scale-in">
+      <div className="animate-scale-in relative mx-4 flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border/50 bg-background shadow-2xl">
         {/* ─── Header with gradient accent ─────────────────────── */}
         <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/5 via-background to-background px-6 pb-5 pt-6">
           {/* Decorative glow */}
-          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-3xl" aria-hidden />
-          <div className="pointer-events-none absolute -left-4 top-8 h-20 w-20 rounded-full bg-primary/5 blur-2xl" aria-hidden />
+          <div
+            className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -left-4 top-8 h-20 w-20 rounded-full bg-primary/5 blur-2xl"
+            aria-hidden
+          />
 
           <div className="relative flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
@@ -205,9 +225,11 @@ export function OnboardingWizard() {
 
           {/* Step 0: Business Details */}
           {step === 0 && (
-            <div className="flex flex-col gap-4 animate-fade-in">
+            <div className="animate-fade-in flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="onb-name">Business name <span className="text-destructive">*</span></Label>
+                <Label htmlFor="onb-name">
+                  Business name <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="onb-name"
                   placeholder="e.g. Adex Fashion House"
@@ -218,7 +240,9 @@ export function OnboardingWizard() {
                 {errors.name && <p className="text-xs text-destructive">{errors.name[0]}</p>}
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="onb-address">Business address <span className="text-destructive">*</span></Label>
+                <Label htmlFor="onb-address">
+                  Business address <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="onb-address"
                   placeholder="e.g. 15 Broad Street, Lagos Island, Lagos"
@@ -232,10 +256,13 @@ export function OnboardingWizard() {
 
           {/* Step 1: Contact Info */}
           {step === 1 && (
-            <div className="flex flex-col gap-4 animate-fade-in">
+            <div className="animate-fade-in flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="onb-phone">
-                  <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> Phone number <span className="text-destructive">*</span></span>
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5" /> Phone number{" "}
+                    <span className="text-destructive">*</span>
+                  </span>
                 </Label>
                 <Input
                   id="onb-phone"
@@ -249,7 +276,10 @@ export function OnboardingWizard() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="onb-email">
-                  <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> Business email <span className="text-destructive">*</span></span>
+                  <span className="flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5" /> Business email{" "}
+                    <span className="text-destructive">*</span>
+                  </span>
                 </Label>
                 <Input
                   id="onb-email"
@@ -262,7 +292,9 @@ export function OnboardingWizard() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="onb-taxid">
-                  <span className="flex items-center gap-1.5"><FileText className="h-3.5 w-3.5" /> Tax ID / RC Number</span>
+                  <span className="flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5" /> Tax ID / RC Number
+                  </span>
                 </Label>
                 <Input
                   id="onb-taxid"
@@ -277,7 +309,7 @@ export function OnboardingWizard() {
 
           {/* Step 2: Preferences */}
           {step === 2 && (
-            <div className="flex flex-col gap-4 animate-fade-in">
+            <div className="animate-fade-in flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label>Default currency</Label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -304,10 +336,10 @@ export function OnboardingWizard() {
                 </div>
               </div>
               <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <span className="font-semibold text-foreground">💡 Tip:</span> You can change your currency
-                  and other defaults later in Settings. The currency you pick here will be the default for
-                  all new receipts and invoices.
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-semibold text-foreground">💡 Tip:</span> You can change your
+                  currency and other defaults later in Settings. The currency you pick here will be
+                  the default for all new receipts and invoices.
                 </p>
               </div>
             </div>
@@ -315,9 +347,10 @@ export function OnboardingWizard() {
 
           {/* Step 3: Signature */}
           {step === 3 && (
-            <div className="flex flex-col gap-4 animate-fade-in">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Your signature will appear on receipts and invoices. Draw it below using your mouse, trackpad, or finger on a touchscreen.
+            <div className="animate-fade-in flex flex-col gap-4">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Your signature will appear on receipts and invoices. Draw it below using your mouse,
+                trackpad, or finger on a touchscreen.
               </p>
               <SignaturePad
                 onSignatureChange={setSignatureDataUrl}
@@ -332,9 +365,7 @@ export function OnboardingWizard() {
 
         {/* ─── Footer ──────────────────────────────────────────── */}
         <div className="border-t border-border/40 px-6 py-4">
-          {serverError && (
-            <p className="mb-3 text-xs text-destructive">{serverError}</p>
-          )}
+          {serverError && <p className="mb-3 text-xs text-destructive">{serverError}</p>}
           <div className="flex items-center justify-between">
             <Button
               type="button"
@@ -347,7 +378,11 @@ export function OnboardingWizard() {
             </Button>
 
             {step < STEPS.length - 1 ? (
-              <Button type="button" className="gap-1.5 shadow-lg shadow-primary/15" onClick={handleNext}>
+              <Button
+                type="button"
+                className="gap-1.5 shadow-lg shadow-primary/15"
+                onClick={handleNext}
+              >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (

@@ -26,7 +26,7 @@ export function listInvoices(businessId: string, opts?: { take?: number }): Prom
       return rows.map(toView);
     },
     ["invoices", businessId, String(opts?.take ?? "all")],
-    { revalidate: 30, tags: [`receipts-${businessId}`] }
+    { revalidate: 30, tags: [`receipts-${businessId}`] },
   )();
 }
 
@@ -54,6 +54,6 @@ export function getOverdueInvoices(businessId: string): Promise<MockReceipt[]> {
       return rows.map(toView);
     },
     ["overdue-invoices", businessId],
-    { revalidate: 60, tags: [`receipts-${businessId}`] }
+    { revalidate: 60, tags: [`receipts-${businessId}`] },
   )();
 }

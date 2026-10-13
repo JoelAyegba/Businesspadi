@@ -41,7 +41,9 @@ export default async function ReceiptDetailPage({ params }: { params: { id: stri
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="truncate font-mono text-lg font-semibold sm:text-xl">{receipt.number}</h1>
+            <h1 className="truncate font-mono text-lg font-semibold sm:text-xl">
+              {receipt.number}
+            </h1>
             <StatusBadge status={receipt.status} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -55,10 +57,10 @@ export default async function ReceiptDetailPage({ params }: { params: { id: stri
               <Download className="h-4 w-4" /> PDF
             </a>
           </Button>
-          <EmailSendButton 
-            receiptId={receipt.id} 
-            defaultEmail={receipt.client?.email} 
-            status={receipt.status} 
+          <EmailSendButton
+            receiptId={receipt.id}
+            defaultEmail={receipt.client?.email}
+            status={receipt.status}
           />
           <ShareMenu
             receiptId={receipt.id}

@@ -11,16 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  markPaid,
-  voidReceipt,
-  duplicateReceipt,
-} from "@/app/app/receipts/actions";
-import {
-  markInvoicePaid,
-  voidInvoice,
-  duplicateInvoice,
-} from "@/app/app/invoices/actions";
+import { markPaid, voidReceipt, duplicateReceipt } from "@/app/app/receipts/actions";
+import { markInvoicePaid, voidInvoice, duplicateInvoice } from "@/app/app/invoices/actions";
 import type { DocumentType } from "@/lib/mock";
 
 type Props = {
@@ -87,8 +79,18 @@ export function ReceiptActionsMenu({ receiptId, status, documentType = "RECEIPT"
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5" aria-label="More actions" disabled={isPending}>
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          aria-label="More actions"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MoreHorizontal className="h-4 w-4" />
+          )}
           <span className="sm:sr-only">More</span>
         </Button>
       </DropdownMenuTrigger>
@@ -103,7 +105,11 @@ export function ReceiptActionsMenu({ receiptId, status, documentType = "RECEIPT"
             <CheckCircle2 className="mr-2 h-4 w-4" /> Mark as paid
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={() => run(() => (isInvoice ? duplicateInvoice(receiptId) : duplicateReceipt(receiptId)))}>
+        <DropdownMenuItem
+          onSelect={() =>
+            run(() => (isInvoice ? duplicateInvoice(receiptId) : duplicateReceipt(receiptId)))
+          }
+        >
           <Copy className="mr-2 h-4 w-4" /> Duplicate
         </DropdownMenuItem>
         {canVoid && (

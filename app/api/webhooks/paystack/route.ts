@@ -29,7 +29,10 @@ type PaystackEvent = {
 };
 
 function verifySignature(rawBody: string, signature: string, secret: string): boolean {
-  const expected = Buffer.from(crypto.createHmac("sha512", secret).update(rawBody).digest("hex"), "utf8");
+  const expected = Buffer.from(
+    crypto.createHmac("sha512", secret).update(rawBody).digest("hex"),
+    "utf8",
+  );
   const received = Buffer.from(signature, "utf8");
   return expected.length === received.length && crypto.timingSafeEqual(expected, received);
 }
@@ -93,7 +96,10 @@ export async function POST(req: Request) {
           if (customerCode && evt.data.subscription_code) {
             await tx.business.updateMany({
               where: { paystackCustomerCode: customerCode },
-              data: { subscriptionStatus: "active", paystackSubscriptionCode: evt.data.subscription_code },
+              data: {
+                subscriptionStatus: "active",
+                paystackSubscriptionCode: evt.data.subscription_code,
+              },
             });
           }
           break;

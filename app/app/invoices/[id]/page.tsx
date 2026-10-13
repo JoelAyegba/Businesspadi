@@ -38,7 +38,9 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="truncate font-mono text-lg font-semibold sm:text-xl">{invoice.number}</h1>
+            <h1 className="truncate font-mono text-lg font-semibold sm:text-xl">
+              {invoice.number}
+            </h1>
             <StatusBadge status={invoice.status} documentType="INVOICE" />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -52,7 +54,11 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
               <Download className="h-4 w-4" /> PDF
             </a>
           </Button>
-          <ReceiptActionsMenu receiptId={invoice.id} status={invoice.status} documentType="INVOICE" />
+          <ReceiptActionsMenu
+            receiptId={invoice.id}
+            status={invoice.status}
+            documentType="INVOICE"
+          />
         </div>
       </header>
 

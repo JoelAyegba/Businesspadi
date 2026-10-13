@@ -12,21 +12,21 @@ The repo lives inside `receiptflow/`; the parent folder also contains `ReceiptFl
 
 All commands run from `receiptflow/`.
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Local dev server on :3000 |
-| `npm run build` | Production build — runs `prisma generate` first |
-| `npm run lint` | ESLint (Next config) |
-| `npm run typecheck` | `tsc --noEmit` — strict mode |
-| `npm run format` / `format:check` | Prettier |
-| `npm test` | Vitest unit tests |
-| `npx vitest run path/to/file.test.ts` | Run a single unit test file |
-| `npm run test:e2e` | Playwright E2E |
-| `npx playwright test path/to/file.spec.ts` | Run a single E2E spec |
-| `npm run db:migrate` | Create + apply a Prisma migration locally (Neon dev branch) |
-| `npm run db:deploy` | Apply pending migrations (CI / prod) |
-| `npm run db:seed` | `tsx scripts/seed.ts` — demo data |
-| `npm run db:studio` | Prisma Studio |
+| Command                                    | Purpose                                                     |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| `npm run dev`                              | Local dev server on :3000                                   |
+| `npm run build`                            | Production build — runs `prisma generate` first             |
+| `npm run lint`                             | ESLint (Next config)                                        |
+| `npm run typecheck`                        | `tsc --noEmit` — strict mode                                |
+| `npm run format` / `format:check`          | Prettier                                                    |
+| `npm test`                                 | Vitest unit tests                                           |
+| `npx vitest run path/to/file.test.ts`      | Run a single unit test file                                 |
+| `npm run test:e2e`                         | Playwright E2E                                              |
+| `npx playwright test path/to/file.spec.ts` | Run a single E2E spec                                       |
+| `npm run db:migrate`                       | Create + apply a Prisma migration locally (Neon dev branch) |
+| `npm run db:deploy`                        | Apply pending migrations (CI / prod)                        |
+| `npm run db:seed`                          | `tsx scripts/seed.ts` — demo data                           |
+| `npm run db:studio`                        | Prisma Studio                                               |
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, `prisma validate`, and build on every PR. Husky + lint-staged run prettier + eslint --fix on staged files pre-commit.
 
@@ -39,6 +39,7 @@ Local development requires API keys from seven services (Clerk, Neon, Cloudinary
 Every business-owned row carries `businessId`. Tenant isolation is **discipline-based, not enforced by the database** (decision 0001 in [DECISIONS.md](DECISIONS.md)).
 
 The single rule:
+
 1. Every server component, server action, and route handler under `/app` starts with [`getServerContext()`](lib/auth.ts) (or `requireBusinessContext()` when auth is mandatory).
 2. Every Prisma query against a business-owned table (`Receipt`, `Client`, `ReceiptLineItem`, `Membership`) **must** include `businessId` in its `WHERE`.
 
@@ -82,6 +83,7 @@ User → Business linkage happens in the Clerk `user.created` webhook (`/api/web
 ### Document templates (decision 0008)
 
 A receipt/invoice is rendered twice, from one source: `buildDocModel` ([lib/document-model.ts](lib/document-model.ts)) decides **what** it says (labels, totals rows, amount in words, PAID/VOID stamp, pay-to). The template ([lib/templates.ts](lib/templates.ts)) decides **how**: one of 4 layout families + a hex palette.
+
 - Web: `components/receipt/layouts/*` (palette → `doc-*` Tailwind colours via CSS variables; container queries `@md:` etc.). PDF: `lib/pdf/layouts/*`, same palette hex. **Change a layout in both places.**
 - Template ids are persisted on `Receipt.templateId`; never rename/remove one.
 - Documents are paper: no `dark:` classes in layouts.

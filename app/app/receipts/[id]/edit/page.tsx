@@ -7,13 +7,9 @@ import { listActiveProducts } from "@/lib/queries/products";
 import { prisma } from "@/lib/db";
 import type { MockBusiness } from "@/lib/mock";
 
-export default async function EditReceiptPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditReceiptPage({ params }: { params: { id: string } }) {
   const { business } = await requireBusinessContext();
-  
+
   const [receipt, clients, products, biz] = await Promise.all([
     getReceipt(business.id, params.id),
     listClients(business.id),

@@ -160,7 +160,10 @@ export async function saveReceipt(input: SaveReceiptInput): Promise<SaveReceiptR
     return { ok: true, id: receipt.id };
   } catch (err: unknown) {
     if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
-      return { ok: false, error: `${nounFor(data.documentType)} number collision — please try again` };
+      return {
+        ok: false,
+        error: `${nounFor(data.documentType)} number collision — please try again`,
+      };
     }
     throw err;
   }
@@ -226,7 +229,12 @@ export async function updateReceipt(input: UpdateReceiptInput): Promise<SaveRece
   // issue/void between the read above and this write can't be clobbered.
   const updated = await prisma.$transaction(async (tx) => {
     const { count } = await tx.receipt.updateMany({
-      where: { id: data.id, businessId: business.id, documentType: data.documentType, status: "DRAFT" },
+      where: {
+        id: data.id,
+        businessId: business.id,
+        documentType: data.documentType,
+        status: "DRAFT",
+      },
       data: {
         clientId: finalClientId,
         status: data.status,
@@ -260,7 +268,8 @@ export async function updateReceipt(input: UpdateReceiptInput): Promise<SaveRece
     });
     return true;
   });
-  if (!updated) return { ok: false, error: `Only draft ${nounFor(data.documentType)}s can be edited` };
+  if (!updated)
+    return { ok: false, error: `Only draft ${nounFor(data.documentType)}s can be edited` };
 
   const base = basePathFor(data.documentType);
   revalidatePath("/app/dashboard");
@@ -328,7 +337,9 @@ export async function voidReceipt(receiptId: string): Promise<ActionResult> {
  * Duplicate a receipt as a fresh DRAFT (§7.3). Copies line items, client,
  * currency, tax rate, notes, template. Gets a new number; no shareId.
  */
-export async function duplicateReceipt(receiptId: string): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+export async function duplicateReceipt(
+  receiptId: string,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const { business } = await requireBusinessContext();
 
   const source = await prisma.receipt.findFirst({
@@ -386,7 +397,9 @@ export async function duplicateReceipt(receiptId: string): Promise<{ ok: true; i
  * The shareId is the only public handle on a receipt — never expose `id`.
  * Idempotent: safe to call from multiple share buttons / retries.
  */
-export async function ensureShareId(receiptId: string): Promise<{ ok: true; shareId: string } | { ok: false; error: string }> {
+export async function ensureShareId(
+  receiptId: string,
+): Promise<{ ok: true; shareId: string } | { ok: false; error: string }> {
   const { business } = await requireBusinessContext();
 
   const existing = await prisma.receipt.findFirst({
